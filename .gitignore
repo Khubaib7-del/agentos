@@ -1,2 +1,4 @@
 /target
 Cargo.lock.orig
+.claude/settings.local.json
+.agentos/review-queue.json
