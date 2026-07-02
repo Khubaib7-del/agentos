@@ -15,7 +15,7 @@ Strategy: **vertical first (Claude Code), horizontal later.** Every milestone sh
 - [x] `agentos setup claude-code`: dry-run by default, `--apply` to write, idempotent, absolute exe path (security findings 5 & 8)
 - [x] `agentos mcp`: stdio MCP server — `get_decisions`, `log_decision`, `get_review_queue`, `resolve_review_note` (hand-rolled JSON-RPC instead of rmcp: smaller dependency tree, full input control; `check_conflict` + snapshot tools → M2)
 - [x] Secret redaction on all state writes (security Finding 3) — 11 credential formats (API keys, tokens, JWTs, URL passwords, private keys, generic assignments), tested against false positives
-- [x] Package as a Claude Code plugin (repo = marketplace; hooks + MCP + /agentos:note, /agentos:decide, /agentos:status slash commands) — needs live install verification by owner
+- [x] Package as a Claude Code plugin (repo = marketplace; hooks + MCP + /agentos:note, /agentos:decide, /agentos:status slash commands) — ⚠ install unverified: /plugin is terminal-CLI-only, owner uses the desktop app; verify via CLI before launch (pre-launch checklist)
 - [ ] Record the demo GIF (the review-queue moment — see docs/05, it's the core marketing asset)
 - **Demo:** queue notes while Claude Code builds a feature; watch it address them as review comments when it finishes.
   ✅ **Verified live 2026-07-03** — owner ran the dogfood test: both queued notes delivered and addressed by the Stop hook, locked decision cited unprompted via UserPromptSubmit. The wedge feature works in production.
