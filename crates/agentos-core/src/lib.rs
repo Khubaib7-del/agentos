@@ -26,6 +26,18 @@ mod tests {
     }
 
     #[test]
+    fn mark_delivered_removes_from_pending() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::init(dir.path()).unwrap();
+        let a = store.add_note("first").unwrap();
+        store.add_note("second").unwrap();
+        store.mark_delivered(&[a.id]).unwrap();
+        let pending = store.pending_notes().unwrap();
+        assert_eq!(pending.len(), 1);
+        assert_eq!(pending[0].text, "second");
+    }
+
+    #[test]
     fn ids_increment() {
         let dir = tempfile::tempdir().unwrap();
         let store = Store::init(dir.path()).unwrap();

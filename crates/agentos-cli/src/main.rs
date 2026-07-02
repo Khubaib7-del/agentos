@@ -1,10 +1,17 @@
+mod hooks;
+mod setup;
+
 use agentos_core::Store;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use std::env;
 
 #[derive(Parser)]
-#[command(name = "agentos", version, about = "Companion layer for AI coding agents")]
+#[command(
+    name = "agentos",
+    version,
+    about = "Companion layer for AI coding agents"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -32,6 +39,30 @@ enum Command {
     },
     /// Show recorded decisions and pending review notes
     List,
+    /// Agent hook entry points (called by the agent, not by hand)
+    #[command(subcommand)]
+    Hook(HookEvent),
+    /// Wire agentos into an agent's configuration (dry run unless --apply)
+    #[command(subcommand)]
+    Setup(SetupTarget),
+}
+
+#[derive(Subcommand)]
+enum HookEvent {
+    /// Claude Code Stop hook: deliver queued review notes
+    Stop,
+    /// Claude Code UserPromptSubmit hook: inject locked decisions
+    Prompt,
+}
+
+#[derive(Subcommand)]
+enum SetupTarget {
+    /// Configure Claude Code hooks in .claude/settings.local.json
+    ClaudeCode {
+        /// Actually write the file (default is a dry run)
+        #[arg(long)]
+        apply: bool,
+    },
 }
 
 fn main() -> Result<()> {
@@ -68,6 +99,9 @@ fn main() -> Result<()> {
                 println!("  #{} {}", n.id, n.text);
             }
         }
+        Command::Hook(HookEvent::Stop) => hooks::run_stop(),
+        Command::Hook(HookEvent::Prompt) => hooks::run_prompt(),
+        Command::Setup(SetupTarget::ClaudeCode { apply }) => setup::claude_code(&cwd, apply)?,
     }
     Ok(())
 }

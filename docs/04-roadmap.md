@@ -7,11 +7,12 @@ Strategy: **vertical first (Claude Code), horizontal later.** Every milestone sh
 - [x] Rust workspace scaffold (`agentos-core`, `agentos-cli`) — builds on stable 1.96, 4 tests passing
 - [x] `.agentos/` state model: decisions + review queue, atomic JSON writes + rendered decisions.md (integrity hashes → M1)
 - [x] CLI: `agentos init` (state dir), `agentos decide --why --lock`, `agentos note`, `agentos list` (agent-config registration + dry-run diff flow → M1)
-- [ ] CI: Windows + macOS + Linux, cargo audit/deny
+- [x] CI: Windows + macOS + Linux (fmt + clippy + test) plus security audit job
 
 ## Milestone 1 — Claude Code vertical (the "install this" moment)
-- [ ] `agentos hook stop`: review-queue delivery with `stop_hook_active` loop guard
-- [ ] `agentos hook prompt`: locked-decision injection (framed as data, length-capped)
+- [x] `agentos hook stop`: review-queue delivery with `stop_hook_active` loop guard — verified end-to-end with simulated hook input
+- [x] `agentos hook prompt`: locked-decision injection (framed as data, length-capped)
+- [x] `agentos setup claude-code`: dry-run by default, `--apply` to write, idempotent, absolute exe path (security findings 5 & 8)
 - [ ] `agentos mcp`: rmcp stdio server — `get_decisions`, `log_decision`, `check_conflict`, `get_review_queue`, `resolve_review_note`
 - [ ] Secret redaction on all state writes (security Finding 3)
 - [ ] Package as a Claude Code plugin (one-command install)

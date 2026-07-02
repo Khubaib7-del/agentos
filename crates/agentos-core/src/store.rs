@@ -17,10 +17,12 @@ impl Store {
     pub fn init(project_root: &Path) -> Result<Self> {
         let root = project_root.join(STATE_DIR);
         if root.exists() {
-            bail!("{} already exists — this project is initialized", root.display());
+            bail!(
+                "{} already exists — this project is initialized",
+                root.display()
+            );
         }
-        fs::create_dir_all(&root)
-            .with_context(|| format!("creating {}", root.display()))?;
+        fs::create_dir_all(&root).with_context(|| format!("creating {}", root.display()))?;
         let store = Self { root };
         store.write_json(DECISIONS_FILE, &Vec::<Decision>::new())?;
         store.write_json(QUEUE_FILE, &Vec::<ReviewNote>::new())?;
@@ -31,7 +33,10 @@ impl Store {
     pub fn open(project_root: &Path) -> Result<Self> {
         let root = project_root.join(STATE_DIR);
         if !root.is_dir() {
-            bail!("no {STATE_DIR} directory in {} — run `agentos init` first", project_root.display());
+            bail!(
+                "no {STATE_DIR} directory in {} — run `agentos init` first",
+                project_root.display()
+            );
         }
         Ok(Self { root })
     }
@@ -72,6 +77,18 @@ impl Store {
         self.read_json(QUEUE_FILE)
     }
 
+    /// Flip pending notes to delivered once they've been handed to an agent,
+    /// so a note is never delivered twice.
+    pub fn mark_delivered(&self, ids: &[u64]) -> Result<()> {
+        let mut all: Vec<ReviewNote> = self.read_json(QUEUE_FILE)?;
+        for n in all.iter_mut() {
+            if ids.contains(&n.id) && n.status == NoteStatus::Pending {
+                n.status = NoteStatus::Delivered;
+            }
+        }
+        self.write_json(QUEUE_FILE, &all)
+    }
+
     pub fn pending_notes(&self) -> Result<Vec<ReviewNote>> {
         Ok(self
             .notes()?
@@ -82,8 +99,8 @@ impl Store {
 
     fn read_json<T: serde::de::DeserializeOwned>(&self, file: &str) -> Result<T> {
         let path = self.root.join(file);
-        let raw = fs::read_to_string(&path)
-            .with_context(|| format!("reading {}", path.display()))?;
+        let raw =
+            fs::read_to_string(&path).with_context(|| format!("reading {}", path.display()))?;
         serde_json::from_str(&raw).with_context(|| format!("parsing {}", path.display()))
     }
 
@@ -93,8 +110,7 @@ impl Store {
         let tmp = self.root.join(format!("{file}.tmp"));
         fs::write(&tmp, serde_json::to_string_pretty(value)?)
             .with_context(|| format!("writing {}", tmp.display()))?;
-        fs::rename(&tmp, &path)
-            .with_context(|| format!("replacing {}", path.display()))?;
+        fs::rename(&tmp, &path).with_context(|| format!("replacing {}", path.display()))?;
         Ok(())
     }
 
