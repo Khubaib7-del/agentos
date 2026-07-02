@@ -2,7 +2,7 @@
 
 **A companion layer for AI coding agents.** It doesn't generate code — it improves the collaboration between developers and agents like Claude Code, Cursor, GitHub Copilot, Codex, Gemini CLI, and Antigravity.
 
-> Status: pre-code. Documentation and design phase (July 2026).
+> Status: early development (July 2026). Core CLI, Claude Code hooks, and MCP server are working; see Usage below.
 
 ## The one-line pitch
 
@@ -17,6 +17,21 @@ Every AI coding agent forgets your decisions, can't be steered mid-task without 
 | **Context Health** | Live context-window %, degradation estimate, usage-reset timer (Claude Code) |
 | **Session Snapshots** | One command captures state (decisions, TODOs, architecture) for the next session or a different agent |
 | **Cross-Agent Memory** | File-based memory readable by every agent via `AGENTS.md` conventions + MCP |
+
+## Usage
+
+```
+agentos init                          create the .agentos state directory in the current project
+agentos decide "DB: PostgreSQL"       record a project decision
+        --why "team knows it"         rationale stored alongside the decision
+        --lock                        agents get warned on conflicting proposals
+agentos note "check error handling"   queue a review note; delivered when the agent finishes its task
+agentos list                          show recorded decisions and pending review notes
+agentos list --json                   same data as JSON, for scripts (includes why/status/timestamps)
+agentos setup claude-code --apply     wire the Claude Code hooks into .claude/settings.local.json
+```
+
+The plain-text `list` output is human-oriented; scripts should use `--json`, whose schema is the stable interface.
 
 ## Documentation
 

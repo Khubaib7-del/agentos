@@ -38,7 +38,11 @@ enum Command {
         text: String,
     },
     /// Show recorded decisions and pending review notes
-    List,
+    List {
+        /// Output as JSON instead of plain text
+        #[arg(long)]
+        json: bool,
+    },
     /// Agent hook entry points (called by the agent, not by hand)
     #[command(subcommand)]
     Hook(HookEvent),
@@ -87,18 +91,26 @@ fn main() -> Result<()> {
             let n = store.add_note(&text)?;
             println!("note #{} queued for the agent's next review pass", n.id);
         }
-        Command::List => {
+        Command::List { json } => {
             let store = Store::open(&cwd)?;
             let decisions = store.decisions()?;
-            println!("decisions ({}):", decisions.len());
-            for d in &decisions {
-                let lock = if d.locked { " [locked]" } else { "" };
-                println!("  #{} {}{lock}", d.id, d.text);
-            }
             let pending = store.pending_notes()?;
-            println!("pending review notes ({}):", pending.len());
-            for n in &pending {
-                println!("  #{} {}", n.id, n.text);
+            if json {
+                let out = serde_json::json!({
+                    "decisions": decisions,
+                    "pending_notes": pending,
+                });
+                println!("{}", serde_json::to_string_pretty(&out)?);
+            } else {
+                println!("decisions ({}):", decisions.len());
+                for d in &decisions {
+                    let lock = if d.locked { " [locked]" } else { "" };
+                    println!("  #{} {}{lock}", d.id, d.text);
+                }
+                println!("pending review notes ({}):", pending.len());
+                for n in &pending {
+                    println!("  #{} {}", n.id, n.text);
+                }
             }
         }
         Command::Hook(HookEvent::Stop) => hooks::run_stop(),
