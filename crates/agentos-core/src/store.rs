@@ -89,6 +89,23 @@ impl Store {
         self.write_json(QUEUE_FILE, &all)
     }
 
+    /// Mark a note resolved (the agent addressed it). Returns false if the
+    /// id doesn't exist.
+    pub fn resolve_note(&self, id: u64) -> Result<bool> {
+        let mut all: Vec<ReviewNote> = self.read_json(QUEUE_FILE)?;
+        let mut found = false;
+        for n in all.iter_mut() {
+            if n.id == id {
+                n.status = NoteStatus::Resolved;
+                found = true;
+            }
+        }
+        if found {
+            self.write_json(QUEUE_FILE, &all)?;
+        }
+        Ok(found)
+    }
+
     pub fn pending_notes(&self) -> Result<Vec<ReviewNote>> {
         Ok(self
             .notes()?

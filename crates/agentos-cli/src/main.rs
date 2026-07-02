@@ -42,6 +42,8 @@ enum Command {
     /// Agent hook entry points (called by the agent, not by hand)
     #[command(subcommand)]
     Hook(HookEvent),
+    /// Run the MCP stdio server (spawned by agents, not by hand)
+    Mcp,
     /// Wire agentos into an agent's configuration (dry run unless --apply)
     #[command(subcommand)]
     Setup(SetupTarget),
@@ -101,6 +103,7 @@ fn main() -> Result<()> {
         }
         Command::Hook(HookEvent::Stop) => hooks::run_stop(),
         Command::Hook(HookEvent::Prompt) => hooks::run_prompt(),
+        Command::Mcp => agentos_mcp::serve(&cwd)?,
         Command::Setup(SetupTarget::ClaudeCode { apply }) => setup::claude_code(&cwd, apply)?,
     }
     Ok(())

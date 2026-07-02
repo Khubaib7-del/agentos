@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/agentos-core", "crates/agentos-cli"]
+members = ["crates/agentos-core", "crates/agentos-cli", "crates/agentos-mcp"]
 
 [workspace.package]
 version = "0.0.1"

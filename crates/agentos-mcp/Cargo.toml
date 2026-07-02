@@ -1,22 +1,15 @@
 [package]
-name = "agentos-cli"
-description = "Companion layer for AI coding agents"
+name = "agentos-mcp"
+description = "MCP stdio server exposing agentos state as tools"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 
-[[bin]]
-name = "agentos"
-path = "src/main.rs"
-
 [dependencies]
 agentos-core = { path = "../agentos-core" }
-agentos-mcp = { path = "../agentos-mcp" }
 anyhow.workspace = true
-clap.workspace = true
-serde.workspace = true
 serde_json.workspace = true
 
 [dev-dependencies]
-chrono.workspace = true
+tempfile = "3"

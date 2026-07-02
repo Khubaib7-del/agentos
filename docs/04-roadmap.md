@@ -13,7 +13,7 @@ Strategy: **vertical first (Claude Code), horizontal later.** Every milestone sh
 - [x] `agentos hook stop`: review-queue delivery with `stop_hook_active` loop guard — verified end-to-end with simulated hook input
 - [x] `agentos hook prompt`: locked-decision injection (framed as data, length-capped)
 - [x] `agentos setup claude-code`: dry-run by default, `--apply` to write, idempotent, absolute exe path (security findings 5 & 8)
-- [ ] `agentos mcp`: rmcp stdio server — `get_decisions`, `log_decision`, `check_conflict`, `get_review_queue`, `resolve_review_note`
+- [x] `agentos mcp`: stdio MCP server — `get_decisions`, `log_decision`, `get_review_queue`, `resolve_review_note` (hand-rolled JSON-RPC instead of rmcp: smaller dependency tree, full input control; `check_conflict` + snapshot tools → M2)
 - [ ] Secret redaction on all state writes (security Finding 3)
 - [ ] Package as a Claude Code plugin (one-command install)
 - [ ] Record the demo GIF (the review-queue moment — see docs/05, it's the core marketing asset)
