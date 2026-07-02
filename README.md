@@ -33,6 +33,17 @@ agentos setup claude-code --apply     wire the Claude Code hooks into .claude/se
 
 The plain-text `list` output is human-oriented; scripts should use `--json`, whose schema is the stable interface.
 
+### Install as a Claude Code plugin
+
+With the `agentos` binary on PATH (`cargo install --path crates/agentos-cli`), the repo doubles as a plugin marketplace:
+
+```
+/plugin marketplace add Khubaib7-del/agentos
+/plugin install agentos@agentos
+```
+
+This wires the Stop/UserPromptSubmit hooks, registers the MCP server, and adds `/agentos:note`, `/agentos:decide`, and `/agentos:status` slash commands. Manual alternative: `agentos setup claude-code --apply` per project.
+
 ## Documentation
 
 - [Vision & Product Definition](docs/01-vision.md) — problem, features, differentiation

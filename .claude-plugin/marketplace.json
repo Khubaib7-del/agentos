@@ -1,0 +1,14 @@
+{
+  "name": "agentos",
+  "owner": {
+    "name": "Khubaib7-del",
+    "url": "https://github.com/Khubaib7-del"
+  },
+  "plugins": [
+    {
+      "name": "agentos",
+      "source": "./",
+      "description": "Review queue + decision locks for Claude Code. Queue ideas while the agent works; they arrive as review comments when it finishes. Locked decisions ride along with every prompt."
+    }
+  ]
+}
