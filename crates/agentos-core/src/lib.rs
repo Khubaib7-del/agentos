@@ -1,7 +1,9 @@
 pub mod model;
+pub mod redact;
 pub mod store;
 
 pub use model::{Decision, NoteStatus, ReviewNote};
+pub use redact::redact;
 pub use store::Store;
 
 #[cfg(test)]
@@ -23,6 +25,28 @@ mod tests {
         assert!(decisions[0].locked);
         assert_eq!(decisions[0].why.as_deref(), Some("relational model fits"));
         assert_eq!(store.pending_notes().unwrap().len(), 1);
+    }
+
+    #[test]
+    fn secrets_never_reach_disk() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::init(dir.path()).unwrap();
+        store
+            .add_decision(
+                "use key sk-abcdefghijklmnop1234 for the API",
+                Some("connect with postgres://app:supersecretpw@db/x"),
+                false,
+            )
+            .unwrap();
+        store.add_note("set API_KEY=abc123def456xyz first").unwrap();
+
+        let raw = std::fs::read_to_string(dir.path().join(".agentos/decisions.json")).unwrap()
+            + &std::fs::read_to_string(dir.path().join(".agentos/review-queue.json")).unwrap()
+            + &std::fs::read_to_string(dir.path().join(".agentos/decisions.md")).unwrap();
+        assert!(!raw.contains("sk-abcdefghijklmnop1234"));
+        assert!(!raw.contains("supersecretpw"));
+        assert!(!raw.contains("abc123def456xyz"));
+        assert!(raw.contains("[redacted:api-key]"));
     }
 
     #[test]

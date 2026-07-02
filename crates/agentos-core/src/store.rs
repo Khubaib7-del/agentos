@@ -45,8 +45,8 @@ impl Store {
         let mut all: Vec<Decision> = self.read_json(DECISIONS_FILE)?;
         let decision = Decision {
             id: all.last().map_or(1, |d| d.id + 1),
-            text: text.to_string(),
-            why: why.map(str::to_string),
+            text: crate::redact(text),
+            why: why.map(crate::redact),
             locked,
             made_at: chrono::Utc::now(),
         };
@@ -64,7 +64,7 @@ impl Store {
         let mut all: Vec<ReviewNote> = self.read_json(QUEUE_FILE)?;
         let note = ReviewNote {
             id: all.last().map_or(1, |n| n.id + 1),
-            text: text.to_string(),
+            text: crate::redact(text),
             status: NoteStatus::Pending,
             created_at: chrono::Utc::now(),
         };

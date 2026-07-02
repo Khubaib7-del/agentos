@@ -43,12 +43,26 @@ pub fn claude_code(project_root: &Path, apply: bool) -> Result<()> {
             .or_insert(json!([]))
             .as_array_mut()
             .with_context(|| format!("hooks.{event} must be a JSON array"))?;
-        let ours = |g: &Value| {
-            g["hooks"]
-                .as_array()
-                .is_some_and(|hs| hs.iter().any(|h| h["command"] == json!(cmd)))
-        };
-        if !groups.iter().any(ours) {
+        // An entry is ours if it runs `agentos hook <event>`, whatever the
+        // binary path — update stale paths in place instead of duplicating.
+        let marker = format!("hook {}", if event == "Stop" { "stop" } else { "prompt" });
+        let mut found = false;
+        for g in groups.iter_mut() {
+            let Some(hs) = g.get_mut("hooks").and_then(Value::as_array_mut) else {
+                continue;
+            };
+            for h in hs.iter_mut() {
+                let existing = h["command"].as_str().unwrap_or("");
+                if existing.contains("agentos") && existing.trim_end().ends_with(&marker) {
+                    found = true;
+                    if existing != cmd {
+                        h["command"] = json!(cmd);
+                        changed = true;
+                    }
+                }
+            }
+        }
+        if !found {
             groups.push(json!({ "hooks": [{ "type": "command", "command": cmd }] }));
             changed = true;
         }

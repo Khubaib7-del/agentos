@@ -14,7 +14,7 @@ Strategy: **vertical first (Claude Code), horizontal later.** Every milestone sh
 - [x] `agentos hook prompt`: locked-decision injection (framed as data, length-capped)
 - [x] `agentos setup claude-code`: dry-run by default, `--apply` to write, idempotent, absolute exe path (security findings 5 & 8)
 - [x] `agentos mcp`: stdio MCP server — `get_decisions`, `log_decision`, `get_review_queue`, `resolve_review_note` (hand-rolled JSON-RPC instead of rmcp: smaller dependency tree, full input control; `check_conflict` + snapshot tools → M2)
-- [ ] Secret redaction on all state writes (security Finding 3)
+- [x] Secret redaction on all state writes (security Finding 3) — 11 credential formats (API keys, tokens, JWTs, URL passwords, private keys, generic assignments), tested against false positives
 - [ ] Package as a Claude Code plugin (one-command install)
 - [ ] Record the demo GIF (the review-queue moment — see docs/05, it's the core marketing asset)
 - **Demo:** queue notes while Claude Code builds a feature; watch it address them as review comments when it finishes.
