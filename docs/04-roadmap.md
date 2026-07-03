@@ -21,9 +21,10 @@ Strategy: **vertical first (Claude Code), horizontal later.** Every milestone sh
   ✅ **Verified live 2026-07-03** — owner ran the dogfood test: both queued notes delivered and addressed by the Stop hook, locked decision cited unprompted via UserPromptSubmit. The wedge feature works in production.
 
 ## Milestone 2 — Context health + snapshots
-- [ ] `agentos statusline`: context %, estimated prompts remaining, reset timer (labeled as estimates)
-- [ ] `agentos snapshot` / `get_latest_snapshot` MCP tool
-- [ ] Snapshot → fresh-session restore flow ("Ctrl+Shift+S" experience from the vision doc)
+- [ ] `agentos statusline`: context %, estimated prompts remaining, reset timer (labeled as estimates) — check desktop-app statusline support first
+- [x] `agentos snapshot` / `agentos restore` CLI + `save_snapshot` / `get_latest_snapshot` MCP tools — snapshots bundle summary, TODOs, open questions, decisions, and open notes; redacted; clock-derived filenames (no path traversal)
+- [x] `check_conflict` MCP tool — keyword heuristic highlights related locked decisions, always returns the full locked list for the model to judge
+- [x] Snapshot → fresh-session restore flow: `agentos restore` prints the latest snapshot for pasting into any agent; MCP-connected agents call `get_latest_snapshot` themselves
 
 ## Milestone 3 — Cross-agent horizontal
 - [ ] `agentos render`: managed regions in AGENTS.md / CLAUDE.md / .cursor/rules / GEMINI.md

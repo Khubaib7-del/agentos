@@ -114,6 +114,102 @@ impl Store {
             .collect())
     }
 
+    /// Write a session snapshot: caller-provided summary/todos/questions plus
+    /// the current decisions and open review notes, as one markdown file any
+    /// agent can read. Returns the file path.
+    pub fn save_snapshot(
+        &self,
+        summary: &str,
+        todos: &[String],
+        open_questions: &[String],
+    ) -> Result<PathBuf> {
+        let dir = self.root.join("snapshots");
+        fs::create_dir_all(&dir)?;
+        let now = chrono::Utc::now();
+
+        let mut md = format!(
+            "# Session snapshot — {}\n\n## Summary\n{}\n",
+            now.format("%Y-%m-%d %H:%M UTC"),
+            crate::redact(summary)
+        );
+
+        md.push_str("\n## Decisions on record\n");
+        let decisions = self.decisions()?;
+        if decisions.is_empty() {
+            md.push_str("- none\n");
+        }
+        for d in &decisions {
+            let lock = if d.locked { " [locked]" } else { "" };
+            md.push_str(&format!("- #{} {}{}", d.id, d.text, lock));
+            if let Some(why) = &d.why {
+                md.push_str(&format!(" — why: {why}"));
+            }
+            md.push('\n');
+        }
+
+        md.push_str("\n## Open review notes\n");
+        let open: Vec<ReviewNote> = self
+            .notes()?
+            .into_iter()
+            .filter(|n| n.status != NoteStatus::Resolved)
+            .collect();
+        if open.is_empty() {
+            md.push_str("- none\n");
+        }
+        for n in &open {
+            md.push_str(&format!("- #{} {}\n", n.id, n.text));
+        }
+
+        if !todos.is_empty() {
+            md.push_str("\n## Pending TODOs\n");
+            for t in todos {
+                md.push_str(&format!("- {}\n", crate::redact(t)));
+            }
+        }
+        if !open_questions.is_empty() {
+            md.push_str("\n## Open questions\n");
+            for q in open_questions {
+                md.push_str(&format!("- {}\n", crate::redact(q)));
+            }
+        }
+        md.push_str("\nRestore hint: read this snapshot, then continue the work it describes.\n");
+
+        // Filename is derived from the clock only — never from input (path
+        // traversal is impossible by construction). Same-second collisions
+        // get an `_NN` suffix; `_` sorts after `.` so lexicographic order
+        // still equals chronological order.
+        let stamp = now.format("%Y-%m-%dT%H-%M-%S");
+        let mut path = dir.join(format!("{stamp}.md"));
+        let mut counter = 2;
+        while path.exists() {
+            path = dir.join(format!("{stamp}_{counter:02}.md"));
+            counter += 1;
+        }
+        fs::write(&path, md)?;
+        Ok(path)
+    }
+
+    /// Newest snapshot (path + content), if any. Filenames are sortable
+    /// timestamps, so lexicographic max is the latest.
+    pub fn latest_snapshot(&self) -> Result<Option<(PathBuf, String)>> {
+        let dir = self.root.join("snapshots");
+        if !dir.is_dir() {
+            return Ok(None);
+        }
+        let mut files: Vec<PathBuf> = fs::read_dir(&dir)?
+            .filter_map(|e| e.ok().map(|e| e.path()))
+            .filter(|p| p.extension().is_some_and(|x| x == "md"))
+            .collect();
+        files.sort();
+        match files.pop() {
+            Some(p) => {
+                let content = fs::read_to_string(&p)?;
+                Ok(Some((p, content)))
+            }
+            None => Ok(None),
+        }
+    }
+
     fn read_json<T: serde::de::DeserializeOwned>(&self, file: &str) -> Result<T> {
         let path = self.root.join(file);
         let raw =

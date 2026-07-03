@@ -72,6 +72,27 @@ mod tests {
     }
 
     #[test]
+    fn snapshot_bundles_state_and_latest_wins() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::init(dir.path()).unwrap();
+        store.add_decision("DB: PostgreSQL", None, true).unwrap();
+        store.add_note("try caching").unwrap();
+
+        store.save_snapshot("first pass", &[], &[]).unwrap();
+        let path = store
+            .save_snapshot("second pass", &["finish tests".into()], &[])
+            .unwrap();
+        assert!(path.exists());
+
+        let (latest_path, content) = store.latest_snapshot().unwrap().unwrap();
+        assert_eq!(latest_path, path);
+        assert!(content.contains("second pass"));
+        assert!(content.contains("DB: PostgreSQL"));
+        assert!(content.contains("try caching"));
+        assert!(content.contains("finish tests"));
+    }
+
+    #[test]
     fn init_twice_fails() {
         let dir = tempfile::tempdir().unwrap();
         Store::init(dir.path()).unwrap();

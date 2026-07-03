@@ -101,6 +101,37 @@ fn tools_list() -> Value {
                 "required": ["id"],
                 "additionalProperties": false
             }
+        },
+        {
+            "name": "save_snapshot",
+            "description": "Save a session snapshot before context runs out or the session ends: your summary plus the current decisions and open notes, restorable in any future session or agent. Call when the user asks to snapshot, or when wrapping up substantial work.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "summary": { "type": "string", "description": "Where the work stands: what was done, current state, what's next" },
+                    "todos": { "type": "array", "items": { "type": "string" }, "description": "Unfinished tasks" },
+                    "open_questions": { "type": "array", "items": { "type": "string" }, "description": "Unresolved questions or risks" }
+                },
+                "required": ["summary"],
+                "additionalProperties": false
+            }
+        },
+        {
+            "name": "get_latest_snapshot",
+            "description": "Read the most recent session snapshot to restore context from previous work in this project. Call at the start of a session when the user refers to earlier work you don't know about.",
+            "inputSchema": { "type": "object", "properties": {}, "additionalProperties": false }
+        },
+        {
+            "name": "check_conflict",
+            "description": "Before proposing an architectural change, check it against the project's locked decisions. Returns keyword-related decisions plus the full locked list — judge conflicts yourself and surface them to the user instead of silently deviating.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "proposal": { "type": "string", "description": "The change you are about to propose, e.g. 'switch to MongoDB'" }
+                },
+                "required": ["proposal"],
+                "additionalProperties": false
+            }
         }
     ] })
 }
@@ -183,8 +214,97 @@ fn run_tool(root: &Path, name: &str, args: &Value) -> std::result::Result<String
                 Err(format!("no note with id {id}"))
             }
         }
+        "save_snapshot" => {
+            let summary = args
+                .get("summary")
+                .and_then(Value::as_str)
+                .filter(|s| !s.trim().is_empty())
+                .ok_or("missing required argument: summary")?;
+            let strings = |key: &str| -> Vec<String> {
+                args.get(key)
+                    .and_then(Value::as_array)
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(Value::as_str)
+                            .map(str::to_string)
+                            .collect()
+                    })
+                    .unwrap_or_default()
+            };
+            let path = store
+                .save_snapshot(summary, &strings("todos"), &strings("open_questions"))
+                .map_err(|e| e.to_string())?;
+            Ok(format!("snapshot saved: {}", path.display()))
+        }
+        "get_latest_snapshot" => match store.latest_snapshot().map_err(|e| e.to_string())? {
+            Some((_, content)) => Ok(content),
+            None => Ok("no snapshots exist yet in this project".into()),
+        },
+        "check_conflict" => {
+            let proposal = args
+                .get("proposal")
+                .and_then(Value::as_str)
+                .ok_or("missing required argument: proposal")?;
+            let decisions = store.decisions().map_err(|e| e.to_string())?;
+            let locked: Vec<_> = decisions.iter().filter(|d| d.locked).collect();
+            if locked.is_empty() {
+                return Ok("no locked decisions on record — nothing to conflict with".into());
+            }
+            let related = keyword_related(&locked, proposal);
+            let mut s = String::new();
+            if related.is_empty() {
+                s.push_str("no keyword-related locked decisions found (heuristic match only).\n");
+            } else {
+                s.push_str("potentially related locked decisions (keyword match):\n");
+                for d in &related {
+                    s.push_str(&format!("- #{} {}\n", d.id, d.text));
+                }
+            }
+            s.push_str("\nall locked decisions — review for conflicts yourself:\n");
+            for d in &locked {
+                s.push_str(&format!("- #{} {}", d.id, d.text));
+                if let Some(why) = &d.why {
+                    s.push_str(&format!(" — why: {why}"));
+                }
+                s.push('\n');
+            }
+            Ok(s)
+        }
         other => Err(format!("unknown tool: {other}")),
     }
+}
+
+/// Cheap keyword-overlap heuristic: shared non-trivial words between the
+/// proposal and a decision's text/rationale. A model does the real conflict
+/// judgment — this only highlights likely candidates.
+fn keyword_related<'a>(
+    locked: &[&'a agentos_core::Decision],
+    proposal: &str,
+) -> Vec<&'a agentos_core::Decision> {
+    const STOPWORDS: &[&str] = &[
+        "the", "and", "for", "with", "use", "using", "should", "would", "switch", "change",
+        "instead", "from", "into", "that", "this", "our", "their", "will", "can", "not",
+    ];
+    let tokens = |s: &str| -> std::collections::HashSet<String> {
+        s.to_lowercase()
+            .split(|c: char| !c.is_alphanumeric())
+            .filter(|w| w.len() > 2 && !STOPWORDS.contains(w))
+            .map(str::to_string)
+            .collect()
+    };
+    let proposal_words = tokens(proposal);
+    locked
+        .iter()
+        .filter(|d| {
+            let mut text = d.text.clone();
+            if let Some(why) = &d.why {
+                text.push(' ');
+                text.push_str(why);
+            }
+            !tokens(&text).is_disjoint(&proposal_words)
+        })
+        .copied()
+        .collect()
 }
 
 #[cfg(test)]
@@ -199,9 +319,59 @@ mod tests {
     }
 
     #[test]
-    fn tools_list_has_four_tools() {
+    fn tools_list_has_seven_tools() {
         let tools = tools_list();
-        assert_eq!(tools["tools"].as_array().unwrap().len(), 4);
+        assert_eq!(tools["tools"].as_array().unwrap().len(), 7);
+    }
+
+    #[test]
+    fn snapshot_save_and_restore_via_tools() {
+        let dir = tempfile::tempdir().unwrap();
+        Store::init(dir.path()).unwrap();
+        let r = tools_call(
+            dir.path(),
+            &json!({ "name": "save_snapshot", "arguments": {
+                "summary": "auth module half done",
+                "todos": ["wire refresh tokens"],
+                "open_questions": ["session length?"]
+            }}),
+        );
+        assert_eq!(r["isError"], false);
+
+        let r = tools_call(dir.path(), &json!({ "name": "get_latest_snapshot" }));
+        let text = r["content"][0]["text"].as_str().unwrap();
+        assert!(text.contains("auth module half done"));
+        assert!(text.contains("wire refresh tokens"));
+        assert!(text.contains("session length?"));
+    }
+
+    #[test]
+    fn check_conflict_always_includes_all_locked_decisions() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::init(dir.path()).unwrap();
+        store
+            .add_decision("DB: PostgreSQL", Some("relational fits"), true)
+            .unwrap();
+        store
+            .add_decision("logging: tracing crate", None, false)
+            .unwrap();
+
+        let r = tools_call(
+            dir.path(),
+            &json!({ "name": "check_conflict", "arguments": { "proposal": "switch to MongoDB" } }),
+        );
+        let text = r["content"][0]["text"].as_str().unwrap();
+        // No keyword overlap, but the locked decision must still be listed.
+        assert!(text.contains("DB: PostgreSQL"));
+        // Unlocked decisions are not conflicts.
+        assert!(!text.contains("tracing"));
+
+        let r = tools_call(
+            dir.path(),
+            &json!({ "name": "check_conflict", "arguments": { "proposal": "replace postgresql with mysql" } }),
+        );
+        let text = r["content"][0]["text"].as_str().unwrap();
+        assert!(text.contains("potentially related"));
     }
 
     #[test]

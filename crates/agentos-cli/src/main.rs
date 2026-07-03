@@ -43,6 +43,16 @@ enum Command {
         #[arg(long)]
         json: bool,
     },
+    /// Save a session snapshot (summary + decisions + open notes)
+    Snapshot {
+        /// One-paragraph summary of where the work stands
+        summary: String,
+        /// Pending TODO (repeatable)
+        #[arg(long = "todo")]
+        todos: Vec<String>,
+    },
+    /// Print the latest snapshot — paste it into any agent to restore context
+    Restore,
     /// Agent hook entry points (called by the agent, not by hand)
     #[command(subcommand)]
     Hook(HookEvent),
@@ -111,6 +121,21 @@ fn main() -> Result<()> {
                 for n in &pending {
                     println!("  #{} {}", n.id, n.text);
                 }
+            }
+        }
+        Command::Snapshot { summary, todos } => {
+            let store = Store::open(&cwd)?;
+            let path = store.save_snapshot(&summary, &todos, &[])?;
+            println!("snapshot saved: {}", path.display());
+        }
+        Command::Restore => {
+            let store = Store::open(&cwd)?;
+            match store.latest_snapshot()? {
+                Some((path, content)) => {
+                    eprintln!("latest snapshot: {}\n", path.display());
+                    println!("{content}");
+                }
+                None => println!("no snapshots yet — run `agentos snapshot \"<summary>\"` first"),
             }
         }
         Command::Hook(HookEvent::Stop) => hooks::run_stop(),
