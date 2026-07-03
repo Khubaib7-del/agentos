@@ -1,4 +1,4 @@
-//! Wires agentos into an agent's configuration. Dry-run by default
+//! Wires thruline into an agent's configuration. Dry-run by default
 //! (security finding 5): show the exact file and content first, write only
 //! with --apply. Hook commands use the absolute exe path (no PATH hijack)
 //! and live in .claude/settings.local.json because that path is
@@ -10,7 +10,7 @@ use std::fs;
 use std::path::Path;
 
 pub fn claude_code(project_root: &Path, apply: bool, statusline: bool) -> Result<()> {
-    let exe = std::env::current_exe().context("resolving agentos executable path")?;
+    let exe = std::env::current_exe().context("resolving thruline executable path")?;
     let exe = exe.to_string_lossy();
     let settings_path = project_root.join(".claude").join("settings.local.json");
 
@@ -43,7 +43,7 @@ pub fn claude_code(project_root: &Path, apply: bool, statusline: bool) -> Result
             .or_insert(json!([]))
             .as_array_mut()
             .with_context(|| format!("hooks.{event} must be a JSON array"))?;
-        // An entry is ours if it runs `agentos hook <event>`, whatever the
+        // An entry is ours if it runs `thruline hook <event>`, whatever the
         // binary path — update stale paths in place instead of duplicating.
         let marker = format!("hook {}", if event == "Stop" { "stop" } else { "prompt" });
         let mut found = false;
@@ -53,7 +53,7 @@ pub fn claude_code(project_root: &Path, apply: bool, statusline: bool) -> Result
             };
             for h in hs.iter_mut() {
                 let existing = h["command"].as_str().unwrap_or("");
-                if existing.contains("agentos") && existing.trim_end().ends_with(&marker) {
+                if existing.contains("thruline") && existing.trim_end().ends_with(&marker) {
                     found = true;
                     if existing != cmd {
                         h["command"] = json!(cmd);
@@ -76,7 +76,7 @@ pub fn claude_code(project_root: &Path, apply: bool, statusline: bool) -> Result
         let current = root.get("statusLine").and_then(|s| s["command"].as_str());
         // Never clobber a statusline that isn't ours.
         match current {
-            Some(existing) if !existing.contains("agentos") => {
+            Some(existing) if !existing.contains("thruline") => {
                 println!("note: keeping your existing statusline ({existing}) — remove it first if you want ours");
             }
             Some(existing) if existing == cmd => {}
@@ -94,7 +94,7 @@ pub fn claude_code(project_root: &Path, apply: bool, statusline: bool) -> Result
     if !apply {
         println!("dry run — would write {}:", settings_path.display());
         println!("{rendered}");
-        println!("\nnothing written. run `agentos setup claude-code --apply` to apply.");
+        println!("\nnothing written. run `thruline setup claude-code --apply` to apply.");
         return Ok(());
     }
     if !changed {

@@ -3,42 +3,6 @@
 version = 4
 
 [[package]]
-name = "agentos-cli"
-version = "0.0.1"
-dependencies = [
- "agentos-core",
- "agentos-mcp",
- "anyhow",
- "chrono",
- "clap",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "agentos-core"
-version = "0.0.1"
-dependencies = [
- "anyhow",
- "chrono",
- "regex",
- "serde",
- "serde_json",
- "sha2",
- "tempfile",
-]
-
-[[package]]
-name = "agentos-mcp"
-version = "0.0.1"
-dependencies = [
- "agentos-core",
- "anyhow",
- "serde_json",
- "tempfile",
-]
-
-[[package]]
 name = "aho-corasick"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -587,6 +551,42 @@ dependencies = [
  "once_cell",
  "rustix",
  "windows-sys",
+]
+
+[[package]]
+name = "thruline-cli"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "serde",
+ "serde_json",
+ "thruline-core",
+ "thruline-mcp",
+]
+
+[[package]]
+name = "thruline-core"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha2",
+ "tempfile",
+]
+
+[[package]]
+name = "thruline-mcp"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "serde_json",
+ "tempfile",
+ "thruline-core",
 ]
 
 [[package]]

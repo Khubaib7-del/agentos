@@ -2,14 +2,14 @@ mod hooks;
 mod setup;
 mod statusline;
 
-use agentos_core::Store;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use std::env;
+use thruline_core::Store;
 
 #[derive(Parser)]
 #[command(
-    name = "agentos",
+    name = "thruline",
     version,
     about = "Companion layer for AI coding agents"
 )]
@@ -20,7 +20,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
-    /// Create the .agentos state directory in the current project
+    /// Create the .thruline state directory in the current project
     Init,
     /// Record a project decision
     Decide {
@@ -44,7 +44,7 @@ enum Command {
         #[arg(long)]
         json: bool,
     },
-    /// Review and approve project memory after it changed outside agentos
+    /// Review and approve project memory after it changed outside thruline
     Trust,
     /// Render project memory into AGENTS.md for other agents (Cursor, Codex, ...)
     Render,
@@ -67,7 +67,7 @@ enum Command {
     Mcp,
     /// Render the Claude Code statusline (called by the agent, not by hand)
     Statusline,
-    /// Wire agentos into an agent's configuration (dry run unless --apply)
+    /// Wire thruline into an agent's configuration (dry run unless --apply)
     #[command(subcommand)]
     Setup(SetupTarget),
 }
@@ -100,7 +100,7 @@ fn main() -> Result<()> {
     match cli.command {
         Command::Init => {
             Store::init(&cwd)?;
-            println!("initialized .agentos in {}", cwd.display());
+            println!("initialized .thruline in {}", cwd.display());
         }
         Command::Decide { text, why, lock } => {
             let store = Store::open(&cwd)?;
@@ -170,12 +170,12 @@ fn main() -> Result<()> {
                     eprintln!("latest snapshot: {}\n", path.display());
                     println!("{content}");
                 }
-                None => println!("no snapshots yet — run `agentos snapshot \"<summary>\"` first"),
+                None => println!("no snapshots yet — run `thruline snapshot \"<summary>\"` first"),
             }
         }
         Command::Hook(HookEvent::Stop) => hooks::run_stop(),
         Command::Hook(HookEvent::Prompt) => hooks::run_prompt(),
-        Command::Mcp => agentos_mcp::serve(&cwd)?,
+        Command::Mcp => thruline_mcp::serve(&cwd)?,
         Command::Statusline => statusline::run(),
         Command::Setup(SetupTarget::ClaudeCode { apply, statusline }) => {
             setup::claude_code(&cwd, apply, statusline)?

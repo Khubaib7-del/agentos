@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "agentos hook stop"
+            "command": "thruline hook stop"
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "agentos hook prompt"
+            "command": "thruline hook prompt"
           }
         ]
       }

@@ -1,4 +1,4 @@
-//! Secret redaction, applied on every write into .agentos state
+//! Secret redaction, applied on every write into .thruline state
 //! (security finding 3). Known credential formats are replaced with
 //! `[redacted:<kind>]` tags before anything touches disk, so a pasted key
 //! can't leak through a committed decision log or snapshot.

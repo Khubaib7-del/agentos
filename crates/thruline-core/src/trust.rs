@@ -1,5 +1,5 @@
 //! Trust-on-first-use for project memory (security finding 1). The decisions
-//! file is injected into agents' prompts, so an edit that bypassed agentos —
+//! file is injected into agents' prompts, so an edit that bypassed thruline —
 //! a `git pull` of a poisoned repo, a script — must not reach an agent
 //! unreviewed. Fingerprints live OUTSIDE the repo (in the user profile), so
 //! whoever tampers with the repo cannot also bless their own tampering.
@@ -12,22 +12,22 @@ use std::path::{Path, PathBuf};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TrustStatus {
-    /// Fingerprint matches — content only changed through agentos.
+    /// Fingerprint matches — content only changed through thruline.
     Trusted,
     /// No fingerprint recorded for this project on this machine yet.
     Untrusted,
-    /// Content changed outside agentos since it was last approved.
+    /// Content changed outside thruline since it was last approved.
     Changed,
 }
 
-/// `AGENTOS_TRUST_DB` overrides the location (used by tests); default is
-/// `~/.agentos/trust.json` — deliberately not inside any repo.
+/// `THRULINE_TRUST_DB` overrides the location (used by tests); default is
+/// `~/.thruline/trust.json` — deliberately not inside any repo.
 pub fn default_db_path() -> Option<PathBuf> {
-    if let Some(p) = std::env::var_os("AGENTOS_TRUST_DB") {
+    if let Some(p) = std::env::var_os("THRULINE_TRUST_DB") {
         return Some(PathBuf::from(p));
     }
     let home = std::env::var_os("USERPROFILE").or_else(|| std::env::var_os("HOME"))?;
-    Some(PathBuf::from(home).join(".agentos").join("trust.json"))
+    Some(PathBuf::from(home).join(".thruline").join("trust.json"))
 }
 
 pub fn project_key(state_root: &Path) -> String {

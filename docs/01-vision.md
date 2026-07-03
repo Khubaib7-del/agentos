@@ -26,22 +26,22 @@ Not another agent. A **local companion binary** that plugs into existing agents 
 ## Feature definitions
 
 ### Review Queue (the wedge feature)
-While the agent works, the user queues notes (`agentos note "use debounce here"`). When the agent finishes its current task, a Stop hook delivers the queue as review comments, one by one. The agent addresses them like PR review feedback. The user never interrupts, the agent never derails.
+While the agent works, the user queues notes (`thruline note "use debounce here"`). When the agent finishes its current task, a Stop hook delivers the queue as review comments, one by one. The agent addresses them like PR review feedback. The user never interrupts, the agent never derails.
 
 ### Decision Log & Decision Lock
-Decisions are recorded (`agentos decide "DB: PostgreSQL" --why "..."`) with timestamp and rationale. Locked decisions are injected into every prompt. If the agent proposes something conflicting ("let's use MongoDB"), the conflict is flagged against the specific locked decision. A decision timeline shows the project's engineering history.
+Decisions are recorded (`thruline decide "DB: PostgreSQL" --why "..."`) with timestamp and rationale. Locked decisions are injected into every prompt. If the agent proposes something conflicting ("let's use MongoDB"), the conflict is flagged against the specific locked decision. A decision timeline shows the project's engineering history.
 
 ### Context Health
 Dashboard in the statusline (Claude Code): context used %, estimated prompts remaining, usage-limit reset time, recommendation to snapshot + start a new session when degradation risk is high. **Explicitly not available for Cursor/Copilot** — they expose no context data; we don't fake it.
 
 ### Session Snapshots
-`agentos snapshot` captures: summary of session, architecture state, pending TODOs, open decisions, queued review notes. Restorable into any supported agent — the snapshot renders into that agent's instruction-file format.
+`thruline snapshot` captures: summary of session, architecture state, pending TODOs, open decisions, queued review notes. Restorable into any supported agent — the snapshot renders into that agent's instruction-file format.
 
 ### Cross-Agent Memory
-All state lives in `.agentos/` as plain markdown + JSON. A render step keeps `AGENTS.md` (and per-agent files) in sync, so even agents with zero AgentOS integration still read the project memory.
+All state lives in `.thruline/` as plain markdown + JSON. A render step keeps `AGENTS.md` (and per-agent files) in sync, so even agents with zero Thruline integration still read the project memory.
 
 ### Pause Flag (Claude Code, post-v1)
-Real-life interruptions (prayer, family, errands) are expensive mid-agent-run: users either wait for completion or hope for a permission prompt to leave the session at. `agentos pause` sets a flag; a PreToolUse hook sees it and holds the agent safely before its next action until the user returns (`agentos resume`). Native `Esc`-to-interrupt already exists in Claude Code — this feature is for walking away *without* cutting the agent off mid-thought. Not implementable for other agents (no hook surface); documented honestly as Claude Code-only.
+Real-life interruptions (prayer, family, errands) are expensive mid-agent-run: users either wait for completion or hope for a permission prompt to leave the session at. `thruline pause` sets a flag; a PreToolUse hook sees it and holds the agent safely before its next action until the user returns (`thruline resume`). Native `Esc`-to-interrupt already exists in Claude Code — this feature is for walking away *without* cutting the agent off mid-thought. Not implementable for other agents (no hook surface); documented honestly as Claude Code-only.
 
 ### Threaded Replies (post-MVP, differentiator)
 Reply to a *specific* agent response, WhatsApp-style. Requires a UI surface we own (VS Code panel or dashboard) — we cannot inject UI into other agents' chat panels. The panel composes a quoted-reply prompt: "Re: *your suggestion to use Prisma* → use Drizzle instead, because we need raw SQL control."
@@ -54,4 +54,4 @@ Reply to a *specific* agent response, WhatsApp-style. Requires a UI surface we o
 
 ## Naming
 
-"AgentOS" is an internal codename only. Public name decided before first release (candidates: ContextKit, DevContext, AgentCompanion — availability check pending, see DECISIONS.md).
+"Thruline" is an internal codename only. Public name decided before first release (candidates: ContextKit, DevContext, AgentCompanion — availability check pending, see DECISIONS.md).

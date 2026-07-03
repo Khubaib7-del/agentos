@@ -71,12 +71,12 @@ pub fn run() {
         }
     }
     if parts.is_empty() {
-        parts.push("agentos".into());
+        parts.push("thruline".into());
     }
     println!("{}", parts.join(" | "));
 }
 
-/// `agentos context`: the statusline's information on demand, for surfaces
+/// `thruline context`: the statusline's information on demand, for surfaces
 /// that can't render a statusline (the desktop app). Finds this project's
 /// newest Claude Code transcript and prints a small report.
 pub fn run_context() {

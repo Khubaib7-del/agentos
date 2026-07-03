@@ -36,4 +36,8 @@ Where an agent doesn't expose data (context % on Cursor/Copilot), we say "not su
 Public name chosen before Milestone 3 launch. Candidates: ContextKit, DevContext, AgentCompanion (availability unverified).
 **Why:** renaming after launch is expensive; before launch it's free.
 
+## 2026-07-03 — Public name: **Thruline** 🔒
+Product, repo, binary, crates, and npm package are all named `thruline`. "AgentOS" retired (also: `agentos` was squatted on npm).
+**Why:** a throughline is the single thread that keeps a story consistent from first scene to last — which is literally this product across sessions and agents. Verified available on npm and crates.io on 2026-07-03; original candidates were taken. Known namespace neighbor: a US marketing agency (different industry, acceptable).
+
 🔒 = locked decision (changing it requires a new entry explaining why).

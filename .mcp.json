@@ -1,7 +1,7 @@
 {
   "mcpServers": {
-    "agentos": {
-      "command": "agentos",
+    "thruline": {
+      "command": "thruline",
       "args": ["mcp"]
     }
   }

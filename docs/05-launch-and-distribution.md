@@ -51,7 +51,7 @@ Later candidates (post-launch, by demand): Homebrew (macOS), winget/Scoop (Windo
 ### Launch sequence (at Milestone 3)
 1. **Soft launch:** post in communities where the pain is felt — r/ClaudeAI, r/cursor, Hacker News (Show HN), relevant Discords. Gather feedback, fix the top complaints.
 2. **Product Hunt launch:** one prepared day — gallery of GIFs, first-comment explaining the story ("built with Claude Code, to fix working with Claude Code"), respond to every comment that day. Goal: first ~1k visitors and the initial user base.
-3. **Post-launch:** the "built AgentOS with Claude Code, here's everything I learned" long-form writeup — historically the highest-leverage content format for dev tools.
+3. **Post-launch:** the "built Thruline with Claude Code, here's everything I learned" long-form writeup — historically the highest-leverage content format for dev tools.
 
 ## Funding (post-launch, expectations calibrated)
 

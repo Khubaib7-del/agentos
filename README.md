@@ -1,4 +1,4 @@
-# AgentOS (working codename)
+# Thruline
 
 **A companion layer for AI coding agents.** It doesn't generate code — it improves the collaboration between developers and agents like Claude Code, Cursor, GitHub Copilot, Codex, Gemini CLI, and Antigravity.
 
@@ -6,7 +6,7 @@
 
 ## The one-line pitch
 
-Every AI coding agent forgets your decisions, can't be steered mid-task without derailing, and hides its context health. AgentOS is a single local binary that fixes all three — for every agent at once.
+Every AI coding agent forgets your decisions, can't be steered mid-task without derailing, and hides its context health. Thruline is a single local binary that fixes all three — for every agent at once.
 
 ## Core features (v1 scope)
 
@@ -21,32 +21,32 @@ Every AI coding agent forgets your decisions, can't be steered mid-task without 
 ## Usage
 
 ```
-agentos init                          create the .agentos state directory in the current project
-agentos decide "DB: PostgreSQL"       record a project decision
+thruline init                          create the .thruline state directory in the current project
+thruline decide "DB: PostgreSQL"       record a project decision
         --why "team knows it"         rationale stored alongside the decision
         --lock                        agents get warned on conflicting proposals
-agentos note "check error handling"   queue a review note; delivered when the agent finishes its task
-agentos list                          show recorded decisions and pending review notes
-agentos list --json                   same data as JSON, for scripts (includes why/status/timestamps)
-agentos render                        write decisions into AGENTS.md so Cursor/Codex/Copilot see them
-agentos context                       context health of the latest Claude Code session in this project
-agentos snapshot "summary" --todo t   save a session snapshot (decisions + open notes bundled in)
-agentos restore                       print the latest snapshot — paste into any agent to restore context
-agentos setup claude-code --apply     wire the Claude Code hooks into .claude/settings.local.json
+thruline note "check error handling"   queue a review note; delivered when the agent finishes its task
+thruline list                          show recorded decisions and pending review notes
+thruline list --json                   same data as JSON, for scripts (includes why/status/timestamps)
+thruline render                        write decisions into AGENTS.md so Cursor/Codex/Copilot see them
+thruline context                       context health of the latest Claude Code session in this project
+thruline snapshot "summary" --todo t   save a session snapshot (decisions + open notes bundled in)
+thruline restore                       print the latest snapshot — paste into any agent to restore context
+thruline setup claude-code --apply     wire the Claude Code hooks into .claude/settings.local.json
 ```
 
 The plain-text `list` output is human-oriented; scripts should use `--json`, whose schema is the stable interface.
 
 ### Install as a Claude Code plugin
 
-With the `agentos` binary on PATH (`cargo install --path crates/agentos-cli`), the repo doubles as a plugin marketplace:
+With the `thruline` binary on PATH (`cargo install --path crates/thruline-cli`), the repo doubles as a plugin marketplace:
 
 ```
-/plugin marketplace add Khubaib7-del/agentos
-/plugin install agentos@agentos
+/plugin marketplace add Khubaib7-del/thruline
+/plugin install thruline@thruline
 ```
 
-This wires the Stop/UserPromptSubmit hooks, registers the MCP server, and adds `/agentos:note`, `/agentos:decide`, and `/agentos:status` slash commands. Manual alternative: `agentos setup claude-code --apply` per project.
+This wires the Stop/UserPromptSubmit hooks, registers the MCP server, and adds `/thruline:note`, `/thruline:decide`, and `/thruline:status` slash commands. Manual alternative: `thruline setup claude-code --apply` per project.
 
 ## Documentation
 

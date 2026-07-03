@@ -4,20 +4,20 @@
 
 ```
                       ┌──────────────────────────────┐
-                      │        agentos (Rust)        │
+                      │        thruline (Rust)        │
                       │                              │
-  Claude Code ──MCP──▶│  agentos mcp        (stdio)  │
+  Claude Code ──MCP──▶│  thruline mcp        (stdio)  │
   Cursor      ──MCP──▶│                              │
-  Copilot     ──MCP──▶│  agentos hook <event>        │◀── Claude Code hooks
+  Copilot     ──MCP──▶│  thruline hook <event>        │◀── Claude Code hooks
   Codex       ──MCP──▶│                              │
-  Gemini CLI  ──MCP──▶│  agentos statusline          │◀── Claude Code statusline
+  Gemini CLI  ──MCP──▶│  thruline statusline          │◀── Claude Code statusline
                       │                              │
-                      │  agentos note / decide /     │◀── user, from any terminal
+                      │  thruline note / decide /     │◀── user, from any terminal
                       │  snapshot / init / render    │
                       └──────────────┬───────────────┘
                                      │
                              ┌───────▼────────┐
-                             │   .agentos/    │  plain markdown + JSON
+                             │   .thruline/    │  plain markdown + JSON
                              │  (per project) │  the single source of truth
                              └───────┬────────┘
                                      │ render
@@ -35,13 +35,13 @@
 For coding agents, MCP servers are **local child processes**, not deployed services:
 
 1. User installs the binary (cargo install / GitHub Releases / npm wrapper that downloads the platform binary).
-2. `agentos init` registers it in each agent's config (with per-file consent — see security doc):
-   - Claude Code: `.mcp.json` or `claude mcp add agentos -- agentos mcp`
+2. `thruline init` registers it in each agent's config (with per-file consent — see security doc):
+   - Claude Code: `.mcp.json` or `claude mcp add thruline -- thruline mcp`
    - Cursor: `.cursor/mcp.json`
    - VS Code / Copilot: `.vscode/mcp.json`
    - Codex: `~/.codex/config.toml`
    - Gemini CLI: `~/.gemini/settings.json`
-3. On startup the agent spawns `agentos mcp` and speaks JSON-RPC over stdin/stdout: `initialize` handshake → `tools/list` discovery → the model calls tools mid-conversation.
+3. On startup the agent spawns `thruline mcp` and speaks JSON-RPC over stdin/stdout: `initialize` handshake → `tools/list` discovery → the model calls tools mid-conversation.
 
 A remote MCP transport (HTTP) only enters the picture for team-shared memory, post-v1.
 
@@ -59,15 +59,15 @@ A remote MCP transport (HTTP) only enters the picture for team-shared memory, po
 
 ## Claude Code deep integration
 
-- **`agentos hook stop`** (Stop hook): if the review queue is non-empty, return `{"decision": "block", "reason": "<queued notes as review comments>"}` so the agent addresses them before finishing. Must honor `stop_hook_active` in the hook input to prevent infinite loops (a Stop hook that blocks re-triggers Stop when the agent finishes again).
-- **`agentos hook prompt`** (UserPromptSubmit hook): inject locked decisions as additional context on every user prompt.
-- **`agentos statusline`**: receives session JSON on stdin (includes transcript path); parses the transcript JSONL for token usage → renders context %, estimated prompts remaining, usage reset time.
+- **`thruline hook stop`** (Stop hook): if the review queue is non-empty, return `{"decision": "block", "reason": "<queued notes as review comments>"}` so the agent addresses them before finishing. Must honor `stop_hook_active` in the hook input to prevent infinite loops (a Stop hook that blocks re-triggers Stop when the agent finishes again).
+- **`thruline hook prompt`** (UserPromptSubmit hook): inject locked decisions as additional context on every user prompt.
+- **`thruline statusline`**: receives session JSON on stdin (includes transcript path); parses the transcript JSONL for token usage → renders context %, estimated prompts remaining, usage reset time.
 - **Packaging**: also ship as a Claude Code **plugin** (bundles hook config + MCP registration into one install command) while raw configs keep other agents supported.
 
-## State layout (`.agentos/` in the project root)
+## State layout (`.thruline/` in the project root)
 
 ```
-.agentos/
+.thruline/
 ├── decisions.md        # human-readable decision log (append-only, timestamped)
 ├── decisions.json      # structured mirror for tooling (lock status, ids)
 ├── review-queue.json   # pending notes: text, timestamp, status
@@ -76,7 +76,7 @@ A remote MCP transport (HTTP) only enters the picture for team-shared memory, po
 └── config.toml         # per-project settings (which files to render, redaction on/off)
 ```
 
-Plain text on purpose: the user can read, edit, and version everything without our tool (see design principle 4). `agentos render` regenerates the agent-facing files (`AGENTS.md` section, etc.) from this source of truth — marked regions only, never clobbering user content.
+Plain text on purpose: the user can read, edit, and version everything without our tool (see design principle 4). `thruline render` regenerates the agent-facing files (`AGENTS.md` section, etc.) from this source of truth — marked regions only, never clobbering user content.
 
 ## Per-agent feasibility matrix
 
@@ -86,7 +86,7 @@ Plain text on purpose: the user can read, edit, and version everything without o
 | MCP tools | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Review queue, non-interrupting | ✅ Stop hook | ⚠️ rules-file instruction to poll MCP (best effort) | ⚠️ same | ⚠️ same | ⚠️ same |
 | Decision injection every prompt | ✅ UserPromptSubmit hook | ⚠️ via rules file (static) | ⚠️ same | ⚠️ same | ⚠️ same |
-| Context % / reset timer | ✅ CLI statusline (⚠️ desktop app doesn't render statuslines — `agentos context` on demand instead) | ❌ not exposed | ❌ not exposed | ❌ | ⚠️ partial |
+| Context % / reset timer | ✅ CLI statusline (⚠️ desktop app doesn't render statuslines — `thruline context` on demand instead) | ❌ not exposed | ❌ not exposed | ❌ | ⚠️ partial |
 | Threaded replies | ❌ needs own UI | ❌ needs own UI | ❌ needs own UI | ❌ | ❌ |
 
 Legend: ✅ full · ⚠️ degraded/best-effort · ❌ not technically possible today. This matrix is the honest basis for marketing claims.
@@ -94,13 +94,13 @@ Legend: ✅ full · ⚠️ degraded/best-effort · ❌ not technically possible 
 ## Crate layout
 
 ```
-agentos/
+thruline/
 ├── Cargo.toml            # workspace
 ├── crates/
-│   ├── agentos-core/     # state model, decisions, queue, snapshots, render
-│   ├── agentos-mcp/      # rmcp server exposing core as tools
-│   ├── agentos-hooks/    # Claude Code hook I/O (serde over stdin/stdout)
-│   └── agentos-cli/      # the `agentos` binary: subcommand dispatch
+│   ├── thruline-core/     # state model, decisions, queue, snapshots, render
+│   ├── thruline-mcp/      # rmcp server exposing core as tools
+│   ├── thruline-hooks/    # Claude Code hook I/O (serde over stdin/stdout)
+│   └── thruline-cli/      # the `thruline` binary: subcommand dispatch
 └── docs/
 ```
 
@@ -110,4 +110,4 @@ agentos/
 2. **Stop-hook loops.** Blocking on Stop re-fires Stop. Mitigation: respect `stop_hook_active`, cap deliveries per session.
 3. **Agent behavior drift.** Hook/config schemas of third-party agents change without notice. Mitigation: integration tests per agent, versioned adapters, graceful degradation to file-based memory.
 4. **Windows quirks.** Paths with spaces (this very machine: `C:\Users\T L S`), CRLF, PowerShell vs bash quoting in hook commands. CI must test Windows + macOS + Linux.
-5. **Rules-file duplication.** Rendering into multiple agent files risks drift. Mitigation: single source of truth + marked managed regions + `agentos render` as the only writer.
+5. **Rules-file duplication.** Rendering into multiple agent files risks drift. Mitigation: single source of truth + marked managed regions + `thruline render` as the only writer.

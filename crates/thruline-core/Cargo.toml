@@ -1,6 +1,6 @@
 [package]
-name = "agentos-core"
-description = "State model for the agentos companion: decisions, review queue, snapshots"
+name = "thruline-core"
+description = "State model for the thruline companion: decisions, review queue, snapshots"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

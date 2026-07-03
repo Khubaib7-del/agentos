@@ -1,13 +1,13 @@
 {
-  "name": "agentos",
-  "description": "Companion layer for AI coding agents: review queue delivered when the agent finishes, locked project decisions injected into every prompt. Requires the agentos binary on PATH (cargo install --path crates/agentos-cli, or a release binary).",
+  "name": "thruline",
+  "description": "Companion layer for AI coding agents: review queue delivered when the agent finishes, locked project decisions injected into every prompt. Requires the thruline binary on PATH (cargo install --path crates/thruline-cli, or a release binary).",
   "version": "0.0.1",
   "author": {
     "name": "Khubaib7-del",
     "url": "https://github.com/Khubaib7-del"
   },
-  "homepage": "https://github.com/Khubaib7-del/agentos",
-  "repository": "https://github.com/Khubaib7-del/agentos",
+  "homepage": "https://github.com/Khubaib7-del/thruline",
+  "repository": "https://github.com/Khubaib7-del/thruline",
   "license": "MIT OR Apache-2.0",
   "keywords": ["review-queue", "project-memory", "decisions", "mcp", "companion"]
 }

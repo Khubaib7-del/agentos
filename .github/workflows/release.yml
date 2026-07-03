@@ -18,16 +18,16 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-            binary: agentos
+            binary: thruline
           - target: x86_64-pc-windows-msvc
             os: windows-latest
-            binary: agentos.exe
+            binary: thruline.exe
           - target: x86_64-apple-darwin
             os: macos-latest
-            binary: agentos
+            binary: thruline
           - target: aarch64-apple-darwin
             os: macos-latest
-            binary: agentos
+            binary: thruline
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -35,19 +35,19 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       - uses: Swatinem/rust-cache@v2
-      - run: cargo build --release --target ${{ matrix.target }} -p agentos-cli
+      - run: cargo build --release --target ${{ matrix.target }} -p thruline-cli
       - name: Stage artifact
         shell: bash
         run: |
           mkdir -p dist
-          cp "target/${{ matrix.target }}/release/${{ matrix.binary }}" "dist/agentos-${{ matrix.target }}${{ matrix.binary == 'agentos.exe' && '.exe' || '' }}"
+          cp "target/${{ matrix.target }}/release/${{ matrix.binary }}" "dist/thruline-${{ matrix.target }}${{ matrix.binary == 'thruline.exe' && '.exe' || '' }}"
       - name: Attest build provenance (Sigstore)
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: dist/*
       - uses: actions/upload-artifact@v4
         with:
-          name: agentos-${{ matrix.target }}
+          name: thruline-${{ matrix.target }}
           path: dist/*
 
   release:

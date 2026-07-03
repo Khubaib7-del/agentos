@@ -1,5 +1,5 @@
 [package]
-name = "agentos-cli"
+name = "thruline-cli"
 description = "Companion layer for AI coding agents"
 version.workspace = true
 edition.workspace = true
@@ -7,12 +7,12 @@ license.workspace = true
 repository.workspace = true
 
 [[bin]]
-name = "agentos"
+name = "thruline"
 path = "src/main.rs"
 
 [dependencies]
-agentos-core = { path = "../agentos-core" }
-agentos-mcp = { path = "../agentos-mcp" }
+thruline-core = { path = "../thruline-core" }
+thruline-mcp = { path = "../thruline-mcp" }
 anyhow.workspace = true
 clap.workspace = true
 chrono.workspace = true

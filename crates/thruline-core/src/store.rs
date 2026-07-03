@@ -4,12 +4,12 @@ use anyhow::{bail, Context, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const STATE_DIR: &str = ".agentos";
+const STATE_DIR: &str = ".thruline";
 const DECISIONS_FILE: &str = "decisions.json";
 const QUEUE_FILE: &str = "review-queue.json";
 
 /// File-backed state for one project. Plain JSON with a rendered markdown
-/// mirror, so the user can always read and version the state without agentos.
+/// mirror, so the user can always read and version the state without thruline.
 pub struct Store {
     root: PathBuf,
     trust_db: Option<PathBuf>,
@@ -40,7 +40,7 @@ impl Store {
         let root = project_root.join(STATE_DIR);
         if !root.is_dir() {
             bail!(
-                "no {STATE_DIR} directory in {} — run `agentos init` first",
+                "no {STATE_DIR} directory in {} — run `thruline init` first",
                 project_root.display()
             );
         }
@@ -51,7 +51,7 @@ impl Store {
     }
 
     /// Compare the decisions file against the fingerprint approved on this
-    /// machine. `Changed` means it was edited outside agentos (e.g. a git
+    /// machine. `Changed` means it was edited outside thruline (e.g. a git
     /// pull) and must be re-approved before agents see it.
     pub fn trust_status(&self) -> TrustStatus {
         match &self.trust_db {
@@ -62,7 +62,7 @@ impl Store {
     }
 
     /// Record the current decisions file as approved (the user reviewed it,
-    /// or the change came through agentos itself).
+    /// or the change came through thruline itself).
     pub fn approve_trust(&self) -> Result<()> {
         match &self.trust_db {
             Some(db) => trust::approve(db, &self.root, &self.root.join(DECISIONS_FILE)),
@@ -73,8 +73,8 @@ impl Store {
     pub fn add_decision(&self, text: &str, why: Option<&str>, locked: bool) -> Result<Decision> {
         if self.trust_status() == TrustStatus::Changed {
             bail!(
-                "decisions were modified outside agentos — review them with \
-                 `agentos list`, then run `agentos trust` before recording new ones"
+                "decisions were modified outside thruline — review them with \
+                 `thruline list`, then run `thruline trust` before recording new ones"
             );
         }
         let mut all: Vec<Decision> = self.read_json(DECISIONS_FILE)?;
@@ -154,12 +154,13 @@ impl Store {
     /// read by Cursor, Codex, Copilot, and others). Only the marked managed
     /// region is ever touched — user content above/below is preserved.
     pub fn render_agents_md(&self, project_root: &Path) -> Result<PathBuf> {
-        const BEGIN: &str = "<!-- agentos:begin — managed region, edit with `agentos` commands -->";
-        const END: &str = "<!-- agentos:end -->";
+        const BEGIN: &str =
+            "<!-- thruline:begin — managed region, edit with `thruline` commands -->";
+        const END: &str = "<!-- thruline:end -->";
 
         let decisions = self.decisions()?;
         let mut block = String::from(BEGIN);
-        block.push_str("\n## Project decisions (recorded with agentos)\n\n");
+        block.push_str("\n## Project decisions (recorded with thruline)\n\n");
         block.push_str(
             "Locked decisions are commitments: if your plan conflicts with one, \
              surface the conflict to the user instead of silently deviating.\n\n",
@@ -176,7 +177,7 @@ impl Store {
             block.push('\n');
         }
         block.push_str(
-            "\nWhen you finish a task, check `.agentos/review-queue.json` for pending \
+            "\nWhen you finish a task, check `.thruline/review-queue.json` for pending \
              user notes and address them like code-review comments.\n",
         );
         block.push_str(END);
@@ -318,7 +319,7 @@ impl Store {
 
     fn render_decisions_md(&self, decisions: &[Decision]) -> Result<()> {
         let mut md = String::from(
-            "# Decision log\n\nManaged by agentos — record entries with `agentos decide`, not by hand.\n",
+            "# Decision log\n\nManaged by thruline — record entries with `thruline decide`, not by hand.\n",
         );
         for d in decisions {
             let lock = if d.locked { " [locked]" } else { "" };

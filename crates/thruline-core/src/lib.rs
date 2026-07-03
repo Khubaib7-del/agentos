@@ -13,15 +13,15 @@ mod tests {
     use super::{Store, TrustStatus};
 
     /// Point the trust db at a temp file so tests never touch the real
-    /// ~/.agentos/trust.json. Once per process; project keys stay unique
+    /// ~/.thruline/trust.json. Once per process; project keys stay unique
     /// because every test uses its own temp dir.
     fn isolate_trust() {
         static ONCE: std::sync::Once = std::sync::Once::new();
         ONCE.call_once(|| {
             let p = std::env::temp_dir()
-                .join(format!("agentos-trust-test-{}.json", std::process::id()));
+                .join(format!("thruline-trust-test-{}.json", std::process::id()));
             let _ = std::fs::remove_file(&p);
-            std::env::set_var("AGENTOS_TRUST_DB", p);
+            std::env::set_var("THRULINE_TRUST_DB", p);
         });
     }
 
@@ -35,7 +35,7 @@ mod tests {
         assert_eq!(store.trust_status(), TrustStatus::Trusted);
 
         // Simulate a git pull / tampering: edit the file directly.
-        let file = dir.path().join(".agentos/decisions.json");
+        let file = dir.path().join(".thruline/decisions.json");
         let mut raw = std::fs::read_to_string(&file).unwrap();
         raw = raw.replace("PostgreSQL", "MongoDB");
         std::fs::write(&file, raw).unwrap();
@@ -44,7 +44,7 @@ mod tests {
         // Writes are blocked until the user reviews.
         assert!(store.add_decision("more", None, false).is_err());
 
-        // Approval (agentos trust) restores normal operation.
+        // Approval (thruline trust) restores normal operation.
         store.approve_trust().unwrap();
         assert_eq!(store.trust_status(), TrustStatus::Trusted);
         assert!(store.add_decision("more", None, false).is_ok());
@@ -83,9 +83,9 @@ mod tests {
             .unwrap();
         store.add_note("set API_KEY=abc123def456xyz first").unwrap();
 
-        let raw = std::fs::read_to_string(dir.path().join(".agentos/decisions.json")).unwrap()
-            + &std::fs::read_to_string(dir.path().join(".agentos/review-queue.json")).unwrap()
-            + &std::fs::read_to_string(dir.path().join(".agentos/decisions.md")).unwrap();
+        let raw = std::fs::read_to_string(dir.path().join(".thruline/decisions.json")).unwrap()
+            + &std::fs::read_to_string(dir.path().join(".thruline/review-queue.json")).unwrap()
+            + &std::fs::read_to_string(dir.path().join(".thruline/decisions.md")).unwrap();
         assert!(!raw.contains("sk-abcdefghijklmnop1234"));
         assert!(!raw.contains("supersecretpw"));
         assert!(!raw.contains("abc123def456xyz"));
@@ -142,7 +142,7 @@ mod tests {
         assert!(second.contains("keep me"));
         assert!(second.contains("Auth: Clerk"));
         assert_eq!(
-            second.matches("agentos:begin").count(),
+            second.matches("thruline:begin").count(),
             1,
             "no duplicate regions"
         );
