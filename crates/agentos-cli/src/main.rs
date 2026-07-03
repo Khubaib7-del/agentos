@@ -1,5 +1,6 @@
 mod hooks;
 mod setup;
+mod statusline;
 
 use agentos_core::Store;
 use anyhow::Result;
@@ -58,6 +59,8 @@ enum Command {
     Hook(HookEvent),
     /// Run the MCP stdio server (spawned by agents, not by hand)
     Mcp,
+    /// Render the Claude Code statusline (called by the agent, not by hand)
+    Statusline,
     /// Wire agentos into an agent's configuration (dry run unless --apply)
     #[command(subcommand)]
     Setup(SetupTarget),
@@ -78,6 +81,9 @@ enum SetupTarget {
         /// Actually write the file (default is a dry run)
         #[arg(long)]
         apply: bool,
+        /// Also register the context-health statusline
+        #[arg(long)]
+        statusline: bool,
     },
 }
 
@@ -141,7 +147,10 @@ fn main() -> Result<()> {
         Command::Hook(HookEvent::Stop) => hooks::run_stop(),
         Command::Hook(HookEvent::Prompt) => hooks::run_prompt(),
         Command::Mcp => agentos_mcp::serve(&cwd)?,
-        Command::Setup(SetupTarget::ClaudeCode { apply }) => setup::claude_code(&cwd, apply)?,
+        Command::Statusline => statusline::run(),
+        Command::Setup(SetupTarget::ClaudeCode { apply, statusline }) => {
+            setup::claude_code(&cwd, apply, statusline)?
+        }
     }
     Ok(())
 }

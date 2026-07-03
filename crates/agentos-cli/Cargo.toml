@@ -15,8 +15,6 @@ agentos-core = { path = "../agentos-core" }
 agentos-mcp = { path = "../agentos-mcp" }
 anyhow.workspace = true
 clap.workspace = true
+chrono.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-
-[dev-dependencies]
-chrono.workspace = true

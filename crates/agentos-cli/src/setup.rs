@@ -9,7 +9,7 @@ use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
 
-pub fn claude_code(project_root: &Path, apply: bool) -> Result<()> {
+pub fn claude_code(project_root: &Path, apply: bool, statusline: bool) -> Result<()> {
     let exe = std::env::current_exe().context("resolving agentos executable path")?;
     let exe = exe.to_string_lossy();
     let settings_path = project_root.join(".claude").join("settings.local.json");
@@ -65,6 +65,28 @@ pub fn claude_code(project_root: &Path, apply: bool) -> Result<()> {
         if !found {
             groups.push(json!({ "hooks": [{ "type": "command", "command": cmd }] }));
             changed = true;
+        }
+    }
+
+    if statusline {
+        let cmd = format!("\"{exe}\" statusline");
+        let root = settings
+            .as_object_mut()
+            .context("settings root must be a JSON object")?;
+        let current = root.get("statusLine").and_then(|s| s["command"].as_str());
+        // Never clobber a statusline that isn't ours.
+        match current {
+            Some(existing) if !existing.contains("agentos") => {
+                println!("note: keeping your existing statusline ({existing}) — remove it first if you want ours");
+            }
+            Some(existing) if existing == cmd => {}
+            _ => {
+                root.insert(
+                    "statusLine".into(),
+                    json!({ "type": "command", "command": cmd }),
+                );
+                changed = true;
+            }
         }
     }
 
