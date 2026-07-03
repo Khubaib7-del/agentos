@@ -37,6 +37,8 @@ Pick your guide — each one is complete, honest about what works, and has troub
 | **Command Code** | [setup guide](docs/setup/command-code.md) — AGENTS.md memory + MCP tools |
 | **Cursor, Antigravity, Codex, Gemini CLI, Copilot** | [setup guide](docs/setup/other-agents.md) — AGENTS.md memory + MCP tools |
 
+Before assuming a feature exists in your agent, read **[what works where](docs/setup/what-works-where.md)** — the honest compatibility page (e.g. slash commands and enforced queue delivery are Claude Code-only; memory and MCP tools work everywhere).
+
 (These guides will move to the docs site at launch; the links will keep working.)
 
 ## Usage

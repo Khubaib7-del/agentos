@@ -60,7 +60,7 @@ Ask Command Code: *"what are this project's recorded decisions?"* — it should 
 | Review queue (`thruline note` while the agent works) | ⚠️ best-effort — AGENTS.md instructs the agent to check the queue when it finishes; if it forgets, say "check the thruline review queue" |
 | Context % / statusline | ❌ Command Code doesn't expose context data to external tools |
 
-(Automatic, enforced review-queue delivery is a Claude Code exclusive — it's the only agent with a hook system.)
+(Automatic, enforced review-queue delivery is a Claude Code exclusive — it's the only agent with a hook system. Same for `/thruline:` slash commands: pressing `/` in Command Code will not show Thruline entries — ask the agent to run `thruline note "..."` instead. Full picture: [what works where](what-works-where.md).)
 
 ## Troubleshooting
 

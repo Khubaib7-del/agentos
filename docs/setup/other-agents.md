@@ -43,5 +43,8 @@ If the server won't start, replace `"thruline"` with the absolute path (`where t
 - ✅ Decisions memory, conflict checks, snapshots, logging decisions from chat — full.
 - ⚠️ Review queue (`thruline note`) — best-effort: AGENTS.md tells the agent to check the queue when finishing; remind it if it forgets. Enforced delivery exists only in Claude Code (hooks).
 - ❌ Context %/reset timer — these agents don't expose context data. (Claude Code CLI exclusive.)
+- ❌ `/thruline:` slash commands — those exist only in Claude Code (plugin system). Pressing `/` in other agents won't show them; ask the agent to run the `thruline` command instead.
+
+The complete honest picture: [what works where](what-works-where.md).
 
 Full capability matrix: [architecture doc](../02-architecture.md).
