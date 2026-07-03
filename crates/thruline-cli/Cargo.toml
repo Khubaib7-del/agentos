@@ -11,8 +11,8 @@ name = "thruline"
 path = "src/main.rs"
 
 [dependencies]
-thruline-core = { path = "../thruline-core" }
-thruline-mcp = { path = "../thruline-mcp" }
+thruline-core = { path = "../thruline-core", version = "0.0.3" }
+thruline-mcp = { path = "../thruline-mcp", version = "0.0.3" }
 anyhow.workspace = true
 clap.workspace = true
 chrono.workspace = true

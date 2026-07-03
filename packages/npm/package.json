@@ -1,0 +1,39 @@
+{
+  "name": "thruline",
+  "version": "0.0.3",
+  "description": "Companion layer for AI coding agents: review queue, decision locks, session snapshots, cross-agent memory",
+  "bin": {
+    "thruline": "bin/thruline.js"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "files": [
+    "bin/thruline.js",
+    "install.js",
+    "checksums.json",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Khubaib7-del/thruline.git"
+  },
+  "homepage": "https://github.com/Khubaib7-del/thruline#readme",
+  "bugs": "https://github.com/Khubaib7-del/thruline/issues",
+  "license": "MIT",
+  "author": "Khubaib (https://github.com/Khubaib7-del)",
+  "keywords": [
+    "ai",
+    "agents",
+    "claude-code",
+    "mcp",
+    "review-queue",
+    "project-memory",
+    "cursor",
+    "copilot",
+    "codex"
+  ]
+}
