@@ -114,6 +114,59 @@ impl Store {
             .collect())
     }
 
+    /// Render project memory into AGENTS.md (the cross-agent instruction file
+    /// read by Cursor, Codex, Copilot, and others). Only the marked managed
+    /// region is ever touched — user content above/below is preserved.
+    pub fn render_agents_md(&self, project_root: &Path) -> Result<PathBuf> {
+        const BEGIN: &str = "<!-- agentos:begin — managed region, edit with `agentos` commands -->";
+        const END: &str = "<!-- agentos:end -->";
+
+        let decisions = self.decisions()?;
+        let mut block = String::from(BEGIN);
+        block.push_str("\n## Project decisions (recorded with agentos)\n\n");
+        block.push_str(
+            "Locked decisions are commitments: if your plan conflicts with one, \
+             surface the conflict to the user instead of silently deviating.\n\n",
+        );
+        if decisions.is_empty() {
+            block.push_str("- none recorded yet\n");
+        }
+        for d in &decisions {
+            let lock = if d.locked { " **[locked]**" } else { "" };
+            block.push_str(&format!("- {}{}", d.text, lock));
+            if let Some(why) = &d.why {
+                block.push_str(&format!(" — why: {why}"));
+            }
+            block.push('\n');
+        }
+        block.push_str(
+            "\nWhen you finish a task, check `.agentos/review-queue.json` for pending \
+             user notes and address them like code-review comments.\n",
+        );
+        block.push_str(END);
+
+        let path = project_root.join("AGENTS.md");
+        let existing = if path.exists() {
+            fs::read_to_string(&path)?
+        } else {
+            String::new()
+        };
+        let updated = match (existing.find(BEGIN), existing.find(END)) {
+            (Some(start), Some(end)) if end >= start => {
+                format!(
+                    "{}{}{}",
+                    &existing[..start],
+                    block,
+                    &existing[end + END.len()..]
+                )
+            }
+            _ if existing.trim().is_empty() => format!("# Agent instructions\n\n{block}\n"),
+            _ => format!("{}\n\n{block}\n", existing.trim_end()),
+        };
+        fs::write(&path, updated)?;
+        Ok(path)
+    }
+
     /// Write a session snapshot: caller-provided summary/todos/questions plus
     /// the current decisions and open review notes, as one markdown file any
     /// agent can read. Returns the file path.

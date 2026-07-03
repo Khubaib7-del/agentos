@@ -44,6 +44,10 @@ enum Command {
         #[arg(long)]
         json: bool,
     },
+    /// Render project memory into AGENTS.md for other agents (Cursor, Codex, ...)
+    Render,
+    /// Show context health for this project's latest Claude Code session
+    Context,
     /// Save a session snapshot (summary + decisions + open notes)
     Snapshot {
         /// One-paragraph summary of where the work stands
@@ -129,6 +133,15 @@ fn main() -> Result<()> {
                 }
             }
         }
+        Command::Render => {
+            let store = Store::open(&cwd)?;
+            let path = store.render_agents_md(&cwd)?;
+            println!("rendered project memory into {}", path.display());
+            println!(
+                "agents that read AGENTS.md (Cursor, Codex, Copilot, ...) now see your decisions"
+            );
+        }
+        Command::Context => statusline::run_context(),
         Command::Snapshot { summary, todos } => {
             let store = Store::open(&cwd)?;
             let path = store.save_snapshot(&summary, &todos, &[])?;

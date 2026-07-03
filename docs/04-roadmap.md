@@ -23,13 +23,14 @@ Strategy: **vertical first (Claude Code), horizontal later.** Every milestone sh
 ## Milestone 2 — Context health + snapshots
 - [x] `agentos statusline`: context % + tokens, estimated prompts remaining, usage-window reset estimate — all labeled as estimates; declines to guess rather than fabricate (unknown model limit → no %; unknowable window boundary → no reset time); `setup claude-code --statusline` registers it
   - Verified 2026-07-03: **terminal CLI only.** The Claude Code desktop app does not render custom statuslines (tested: correct project folder, updated app, statusLine in settings.local.json — nothing shown). Documented in the feasibility matrix.
-- [ ] `agentos context` command: same context-health info printed on demand — covers desktop-app users the statusline can't reach (M3)
+- [x] `agentos context` command: same context-health info printed on demand — covers desktop-app users the statusline can't reach (verified live against a real session transcript)
 - [x] `agentos snapshot` / `agentos restore` CLI + `save_snapshot` / `get_latest_snapshot` MCP tools — snapshots bundle summary, TODOs, open questions, decisions, and open notes; redacted; clock-derived filenames (no path traversal)
 - [x] `check_conflict` MCP tool — keyword heuristic highlights related locked decisions, always returns the full locked list for the model to judge
 - [x] Snapshot → fresh-session restore flow: `agentos restore` prints the latest snapshot for pasting into any agent; MCP-connected agents call `get_latest_snapshot` themselves
 
 ## Milestone 3 — Cross-agent horizontal
-- [ ] `agentos render`: managed regions in AGENTS.md / CLAUDE.md / .cursor/rules / GEMINI.md
+- [x] `agentos render`: managed region in AGENTS.md (the emerging cross-agent standard, read by Cursor/Codex/Copilot/Gemini CLI) — user content preserved, region replaced idempotently; per-agent files (.cursor/rules, GEMINI.md) only if demand appears
+- [x] `/agentos:steer` slash command: interrupt correction processed with review semantics — log it, audit work done so far against it, fix conflicts, then continue (owner's idea, 2026-07-03)
 - [ ] MCP registration + tested integration for Cursor, Copilot (VS Code), Codex, Gemini CLI
 - [ ] Trust-on-first-use + change-detection flow (security Finding 1)
 - [ ] Public release: signed binaries, checksums, npm wrapper, SECURITY.md

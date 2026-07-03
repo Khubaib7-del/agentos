@@ -72,6 +72,37 @@ mod tests {
     }
 
     #[test]
+    fn render_preserves_user_content_and_updates_managed_region() {
+        let dir = tempfile::tempdir().unwrap();
+        let store = Store::init(dir.path()).unwrap();
+        store.add_decision("DB: PostgreSQL", None, true).unwrap();
+
+        // Fresh render creates the file.
+        let path = store.render_agents_md(dir.path()).unwrap();
+        let first = std::fs::read_to_string(&path).unwrap();
+        assert!(first.contains("DB: PostgreSQL"));
+        assert!(first.contains("**[locked]**"));
+
+        // User adds their own content around the managed region.
+        let user_content =
+            format!("# My rules\n\nAlways use tabs.\n\n{first}\n## Footer\nkeep me\n");
+        std::fs::write(&path, &user_content).unwrap();
+
+        // A new decision re-renders only the managed region.
+        store.add_decision("Auth: Clerk", None, false).unwrap();
+        store.render_agents_md(dir.path()).unwrap();
+        let second = std::fs::read_to_string(&path).unwrap();
+        assert!(second.contains("Always use tabs."));
+        assert!(second.contains("keep me"));
+        assert!(second.contains("Auth: Clerk"));
+        assert_eq!(
+            second.matches("agentos:begin").count(),
+            1,
+            "no duplicate regions"
+        );
+    }
+
+    #[test]
     fn snapshot_bundles_state_and_latest_wins() {
         let dir = tempfile::tempdir().unwrap();
         let store = Store::init(dir.path()).unwrap();

@@ -76,6 +76,106 @@ pub fn run() {
     println!("{}", parts.join(" | "));
 }
 
+/// `agentos context`: the statusline's information on demand, for surfaces
+/// that can't render a statusline (the desktop app). Finds this project's
+/// newest Claude Code transcript and prints a small report.
+pub fn run_context() {
+    let Ok(cwd) = std::env::current_dir() else {
+        println!("could not determine the current directory");
+        return;
+    };
+    let Some(transcript) = find_latest_transcript(&cwd) else {
+        println!(
+            "no Claude Code transcript found for {} — start a session in this folder first",
+            cwd.display()
+        );
+        return;
+    };
+    let model_id = last_model(&transcript);
+    let limit = context_limit(model_id.as_deref());
+    println!(
+        "session transcript: {}",
+        transcript.file_name().unwrap_or_default().to_string_lossy()
+    );
+    if let Some(m) = &model_id {
+        println!("model: {m}");
+    }
+    match context_stats(&transcript, limit) {
+        Some(stats) if stats.percent <= 100 => {
+            println!(
+                "context used: {}k of {}k tokens ({}%)",
+                stats.used / 1000,
+                limit / 1000,
+                stats.percent
+            );
+            match stats.prompts_left {
+                Some(p) if p > 99 => println!("estimated prompts left: 99+"),
+                Some(p) => println!("estimated prompts left: ~{p}"),
+                None => {}
+            }
+        }
+        Some(stats) => println!(
+            "context used: {}k tokens (model limit unknown — no percentage shown)",
+            stats.used / 1000
+        ),
+        None => println!("context: no usage data in the transcript yet"),
+    }
+    match reset_estimate(&transcript, Utc::now()) {
+        Some(reset) => println!(
+            "usage window resets: ~{} (estimate)",
+            reset.with_timezone(&Local).format("%H:%M")
+        ),
+        None => println!("usage window: boundary unknown — not guessing"),
+    }
+}
+
+/// Claude Code encodes a project path into a directory name by replacing
+/// every non-alphanumeric character with '-'.
+fn encode_project_dir(path: &Path) -> String {
+    path.to_string_lossy()
+        .chars()
+        .map(|c| if c.is_ascii_alphanumeric() { c } else { '-' })
+        .collect()
+}
+
+fn find_latest_transcript(project: &Path) -> Option<PathBuf> {
+    let home = std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .ok()?;
+    let dir = Path::new(&home)
+        .join(".claude")
+        .join("projects")
+        .join(encode_project_dir(project));
+    let mut newest: Option<(std::time::SystemTime, PathBuf)> = None;
+    for entry in fs::read_dir(dir).ok()?.flatten() {
+        let path = entry.path();
+        if path.extension().is_none_or(|e| e != "jsonl") {
+            continue;
+        }
+        let Ok(modified) = entry.metadata().and_then(|m| m.modified()) else {
+            continue;
+        };
+        if newest.as_ref().is_none_or(|(t, _)| modified > *t) {
+            newest = Some((modified, path));
+        }
+    }
+    newest.map(|(_, p)| p)
+}
+
+fn last_model(transcript: &Path) -> Option<String> {
+    let file = fs::File::open(transcript).ok()?;
+    let mut model = None;
+    for line in BufReader::new(file).lines().map_while(Result::ok) {
+        let Ok(v) = serde_json::from_str::<Value>(&line) else {
+            continue;
+        };
+        if let Some(m) = v["message"]["model"].as_str() {
+            model = Some(m.to_string());
+        }
+    }
+    model
+}
+
 fn context_limit(model_id: Option<&str>) -> u64 {
     match model_id {
         Some(id) if id.contains("[1m]") => 1_000_000,

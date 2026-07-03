@@ -28,6 +28,10 @@ agentos decide "DB: PostgreSQL"       record a project decision
 agentos note "check error handling"   queue a review note; delivered when the agent finishes its task
 agentos list                          show recorded decisions and pending review notes
 agentos list --json                   same data as JSON, for scripts (includes why/status/timestamps)
+agentos render                        write decisions into AGENTS.md so Cursor/Codex/Copilot see them
+agentos context                       context health of the latest Claude Code session in this project
+agentos snapshot "summary" --todo t   save a session snapshot (decisions + open notes bundled in)
+agentos restore                       print the latest snapshot — paste into any agent to restore context
 agentos setup claude-code --apply     wire the Claude Code hooks into .claude/settings.local.json
 ```
 
