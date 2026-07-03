@@ -18,6 +18,15 @@ Every AI coding agent forgets your decisions, can't be steered mid-task without 
 | **Session Snapshots** | One command captures state (decisions, TODOs, architecture) for the next session or a different agent |
 | **Cross-Agent Memory** | File-based memory readable by every agent via `AGENTS.md` conventions + MCP |
 
+## Install
+
+```
+npm install -g thruline     # any platform — downloads the release binary, SHA-256 verified
+cargo install thruline      # or build from source
+```
+
+Binaries are also on [GitHub Releases](https://github.com/Khubaib7-del/thruline/releases) with checksums and Sigstore provenance.
+
 ## Usage
 
 ```

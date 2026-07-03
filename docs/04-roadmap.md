@@ -33,7 +33,7 @@ Strategy: **vertical first (Claude Code), horizontal later.** Every milestone sh
 - [x] `/thruline:steer` slash command: interrupt correction processed with review semantics — log it, audit work done so far against it, fix conflicts, then continue (owner's idea, 2026-07-03)
 - [ ] MCP registration + tested integration for Cursor, Copilot (VS Code), Codex, Gemini CLI
 - [x] Trust-on-first-use + change-detection flow (security Finding 1) — fingerprints in `~/.thruline/trust.json` (outside the repo, so repo tampering can't self-bless); external edits quarantine memory from the prompt hook and MCP read tools until `thruline trust`; concurrent-writer race fixed with lock file + atomic replace
-- [ ] Public release: signed binaries, checksums, npm wrapper, SECURITY.md
+- [x] Public release: signed binaries (Sigstore provenance, 4 platforms), SHA256SUMS, SECURITY.md, npm wrapper published as `thruline@0.0.3` (2026-07-03, checksum-pinned, verified end to end), crates published: `thruline` + `thruline-core` + `thruline-mcp`
 - [ ] Landing page + docs site live, soft launch → Product Hunt (full sequence in docs/05)
 - **This is the launch milestone** (name decided before this ships).
 
