@@ -1,6 +1,6 @@
 [package]
-name = "thruline-cli"
-description = "Companion layer for AI coding agents"
+name = "thruline"
+description = "Companion layer for AI coding agents: review queue, decision locks, snapshots, cross-agent memory"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
