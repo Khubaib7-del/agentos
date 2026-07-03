@@ -27,6 +27,18 @@ cargo install thruline      # or build from source
 
 Binaries are also on [GitHub Releases](https://github.com/Khubaib7-del/thruline/releases) with checksums and Sigstore provenance.
 
+## Set up with your agent
+
+Pick your guide — each one is complete, honest about what works, and has troubleshooting:
+
+| Your agent | Guide |
+|---|---|
+| **Claude Code** (CLI or desktop app) | [setup guide](docs/setup/claude-code.md) — deepest integration: enforced review queue, decision injection, statusline |
+| **Command Code** | [setup guide](docs/setup/command-code.md) — AGENTS.md memory + MCP tools |
+| **Cursor, Antigravity, Codex, Gemini CLI, Copilot** | [setup guide](docs/setup/other-agents.md) — AGENTS.md memory + MCP tools |
+
+(These guides will move to the docs site at launch; the links will keep working.)
+
 ## Usage
 
 ```
