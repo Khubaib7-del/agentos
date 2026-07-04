@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>docs — thruline</title>
+<meta name="description" content="Thruline setup guides per agent, the honest compatibility page, and the security model.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0a0e;--ink:#d6d6e3;--dim:#8a8aa3;--faint:#565672;--line:#1e1e2e;
+  --vio:#7c6ffb;--vio-dim:#5B4FE9;--green:#3ecf8e;--amber:#e8b04b;--red:#e25a5a;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --disp:'Space Grotesk',system-ui,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+::selection{background:var(--vio-dim);color:#fff}
+body{background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:15px;line-height:1.8}
+a{color:var(--vio);text-decoration:none;border-bottom:1px solid transparent}
+a:hover{border-bottom-color:var(--vio)}
+
+.bar{position:sticky;top:0;z-index:9;background:rgba(10,10,14,.86);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);font-size:.8rem}
+.bar .in{max-width:1140px;margin:0 auto;padding:0 22px;display:flex;justify-content:space-between;align-items:center;height:44px}
+.bar .l{color:var(--faint)}
+.bar .l a{color:var(--vio);border:0}
+.bar .r{display:flex;gap:18px}
+.bar .r a{color:var(--dim);border:0}
+.bar .r a:hover{color:var(--ink)}
+
+.layout{max-width:1140px;margin:0 auto;padding:40px 22px;display:grid;grid-template-columns:230px 1fr;gap:48px;align-items:start}
+
+.side{position:sticky;top:70px}
+.side .cat{color:var(--faint);font-size:.72rem;letter-spacing:.14em;margin:22px 0 8px}
+.side .cat:first-child{margin-top:0}
+.side a{display:block;color:var(--dim);font-size:.86rem;padding:6px 10px;border:0;border-left:2px solid var(--line);transition:color .15s,border-color .15s}
+.side a:hover{color:var(--ink)}
+.side a.on{color:var(--vio);border-left-color:var(--vio)}
+
+.doc{min-width:0;max-width:760px}
+.doc h1{font-family:var(--disp);font-weight:700;letter-spacing:-.02em;font-size:2rem;line-height:1.15;margin:0 0 20px;color:#fff}
+.doc h2{font-family:var(--disp);font-weight:700;letter-spacing:-.01em;font-size:1.35rem;margin:44px 0 12px;color:#fff}
+.doc h3{font-family:var(--disp);font-weight:500;font-size:1.05rem;margin:30px 0 8px;color:var(--ink)}
+.doc p{margin:12px 0;color:var(--dim)}
+.doc li{margin:8px 0 8px 22px;color:var(--dim)}
+.doc strong{color:var(--ink);font-weight:700}
+.doc em{color:var(--ink)}
+.doc code{background:#12121c;border:1px solid var(--line);border-radius:5px;padding:1px 7px;font-size:.86em;color:var(--vio)}
+.doc pre{background:#0d0d14;border:1px solid var(--line);border-radius:10px;padding:16px 20px;overflow-x:auto;margin:18px 0;line-height:1.7}
+.doc pre code{background:none;border:0;padding:0;color:var(--ink);font-size:.86rem}
+.doc table{width:100%;border-collapse:collapse;font-size:.85rem;margin:18px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden;display:block;overflow-x:auto}
+.doc th,.doc td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}
+.doc th{color:var(--faint);font-weight:400;background:#0d0d14;white-space:nowrap}
+.doc td{color:var(--dim)}
+.doc td:first-child{color:var(--ink)}
+.doc blockquote{border-left:2px solid var(--vio);padding:2px 18px;margin:16px 0;color:var(--dim)}
+.doc hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+.loading{color:var(--faint);padding:60px 0}
+.loading .caret{display:inline-block;width:8px;height:1.05em;background:var(--vio);vertical-align:text-bottom;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.src{margin-top:52px;padding-top:18px;border-top:1px solid var(--line);font-size:.78rem;color:var(--faint)}
+
+@media(max-width:820px){
+  .layout{grid-template-columns:1fr;gap:20px}
+  .side{position:static;display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none}
+  .side::-webkit-scrollbar{display:none}
+  .side .cat{display:none}
+  .side a{white-space:nowrap;border:1px solid var(--line);border-radius:999px;padding:6px 14px}
+  .side a.on{border-color:var(--vio)}
+}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="in">
+  <div class="l"><a href="index.html">thruline</a> <span>/ docs</span></div>
+  <div class="r">
+    <a href="index.html">home</a>
+    <a href="https://github.com/Khubaib7-del/thruline">github ↗</a>
+  </div>
+</div></div>
+
+<div class="layout">
+  <nav class="side" id="side">
+    <div class="cat">SETUP</div>
+    <a data-g="setup/claude-code">claude code</a>
+    <a data-g="setup/command-code">command code</a>
+    <a data-g="setup/other-agents">cursor · antigravity · more</a>
+    <div class="cat">HONESTY</div>
+    <a data-g="setup/what-works-where">what works where</a>
+    <div class="cat">DEEP DIVES</div>
+    <a data-g="03-security">security &amp; threat model</a>
+    <a data-g="02-architecture">architecture</a>
+    <a data-g="04-roadmap">roadmap</a>
+  </nav>
+
+  <main class="doc" id="doc">
+    <div class="loading">fetching from the repo <span class="caret"></span></div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+const RAW = "https://raw.githubusercontent.com/Khubaib7-del/thruline/main/docs/";
+const REPO = "https://github.com/Khubaib7-del/thruline/blob/main/docs/";
+const DEFAULT_G = "setup/claude-code";
+
+function current(){ return new URLSearchParams(location.search).get("g") || DEFAULT_G; }
+
+async function load(g){
+  const doc = document.getElementById("doc");
+  doc.innerHTML = '<div class="loading">fetching from the repo <span class="caret"></span></div>';
+  document.querySelectorAll("#side a").forEach(a => a.classList.toggle("on", a.dataset.g === g));
+  try{
+    const res = await fetch(RAW + g + ".md");
+    if(!res.ok) throw new Error(res.status);
+    const md = await res.text();
+    doc.innerHTML = marked.parse(md);
+    /* rewrite intra-doc .md links to stay inside this page */
+    doc.querySelectorAll("a").forEach(a => {
+      const href = a.getAttribute("href") || "";
+      if(href.endsWith(".md")){
+        let target = href.replace(/^(\.\/)+/,"").replace(/^\/+/,"").replace(/\.md$/,"");
+        if(!target.includes("/") && g.includes("/")) target = g.split("/")[0] + "/" + target;
+        if(target.startsWith("../")) target = target.slice(3);
+        a.setAttribute("href", "?g=" + target);
+        a.addEventListener("click", e => { e.preventDefault(); go(target); });
+      } else if(href.startsWith("http")){
+        a.target = "_blank";
+      }
+    });
+    doc.insertAdjacentHTML("beforeend",
+      `<div class="src">this page renders <a href="${REPO + g}.md" target="_blank">docs/${g}.md</a> live from the repo — always current, never a stale copy.</div>`);
+    window.scrollTo(0,0);
+  }catch(e){
+    doc.innerHTML = `<div class="loading">could not fetch this page (${e.message}) — read it <a href="${REPO + g}.md">on GitHub</a> instead.</div>`;
+  }
+}
+function go(g){ history.pushState({g}, "", "?g=" + g); load(g); }
+document.querySelectorAll("#side a").forEach(a => {
+  a.href = "?g=" + a.dataset.g;
+  a.addEventListener("click", e => { e.preventDefault(); go(a.dataset.g); });
+});
+window.addEventListener("popstate", () => load(current()));
+load(current());
+</script>
+</body>
+</html>
