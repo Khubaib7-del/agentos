@@ -1,5 +1,10 @@
 # Thruline
 
+[![CI](https://github.com/Khubaib7-del/thruline/actions/workflows/ci.yml/badge.svg)](https://github.com/Khubaib7-del/thruline/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/thruline)](https://crates.io/crates/thruline)
+[![npm](https://img.shields.io/npm/v/thruline)](https://www.npmjs.com/package/thruline)
+[![license](https://img.shields.io/badge/license-MIT-5B4FE9)](LICENSE)
+
 **A companion layer for AI coding agents.** It doesn't generate code — it improves the collaboration between developers and agents like Claude Code, Cursor, GitHub Copilot, Codex, Gemini CLI, and Antigravity.
 
 > Status: early development (July 2026). Core CLI, Claude Code hooks, and MCP server are working; see Usage below.
@@ -47,8 +52,6 @@ Pick your guide — each one is complete, honest about what works, and has troub
 
 Before assuming a feature exists in your agent, read **[what works where](docs/setup/what-works-where.md)** — the honest compatibility page (e.g. slash commands and enforced queue delivery are Claude Code-only; memory and MCP tools work everywhere).
 
-(These guides will move to the docs site at launch; the links will keep working.)
-
 **Versioning note:** the binary (GitHub releases, npm, crates.io) and the Claude Code plugin (`.claude-plugin/plugin.json`) are versioned separately — plugin numbers move faster because slash-command changes don't need a new binary. Both align again at `v0.1.0`.
 
 ## Usage
@@ -72,14 +75,14 @@ The plain-text `list` output is human-oriented; scripts should use `--json`, who
 
 ### Install as a Claude Code plugin
 
-With the `thruline` binary on PATH (`cargo install --path crates/thruline-cli`), the repo doubles as a plugin marketplace:
+With the `thruline` binary on PATH (`npm install -g thruline`), the repo doubles as a plugin marketplace:
 
 ```
 /plugin marketplace add Khubaib7-del/thruline
 /plugin install thruline@thruline
 ```
 
-This wires the Stop/UserPromptSubmit hooks, registers the MCP server, and adds `/thruline:note`, `/thruline:decide`, and `/thruline:status` slash commands. Manual alternative: `thruline setup claude-code --apply` per project.
+This wires the Stop/UserPromptSubmit hooks, registers the MCP server, and adds eleven slash commands (`/thruline:note`, `:decide`, `:status`, `:steer`, `:snapshot`, `:restore`, `:wrap`, and more). Manual alternative: `thruline setup claude-code --apply` per project.
 
 ## Documentation
 
