@@ -8,6 +8,10 @@
 
 Every AI coding agent forgets your decisions, can't be steered mid-task without derailing, and hides its context health. Thruline is a single local binary that fixes all three — for every agent at once.
 
+![Thruline demo: queue ideas while the agent works, they arrive as review comments when it finishes](docs/assets/thruline-hero.gif)
+
+*Real session, real hooks: two ideas queued from a terminal mid-task; the agent addressed both the moment it finished — no interruption. ([69-second full version](docs/assets/thruline-demo.mp4))*
+
 ## Core features (v1 scope)
 
 | Feature | What it does |
